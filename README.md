@@ -75,19 +75,19 @@ Alcance a meta de pontos em até **8 mãos** com apenas **5 descartes** disponí
 ### Passos
 
 1. **Clone o repositório**
-bash
-git clone https://github.com/seu-usuario/ICE-latro.git
-cd ICE-latro
+bash <br>
+git clone https://github.com/seu-usuario/ICE-latro.git <br>
+cd ICE-latro <br>
 
 
 2. **Instale as dependências**
-bash
-npm install
+bash <br>
+npm install <br>
 
 
 3. **Execute o servidor de desenvolvimento**
-bash
-npm run dev
+bash <br>
+npm run dev <br>
 
 
 4. **Acesse no navegador**
@@ -96,9 +96,9 @@ http://localhost:5173
 
 
 ### Build para Produção
-bash
-npm run build
-npm run preview
+bash <br>
+npm run build <br>
+npm run preview <br>
 
 
 ## 🎨 Componentes Principais

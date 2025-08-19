@@ -1,21 +1,32 @@
-// src/components/GameCard.ts
+/**
+ * GameCard.ts - Componente Web para representação visual de cartas
+ * Renderiza cartas de baralho com estilo e símbolos apropriados
+ */
+
+/**
+ * Componente customizado que representa uma carta de baralho
+ * Exibe valor, naipe e aplicação de cores baseada no tipo da carta
+ */
 class GameCard extends HTMLElement {
   constructor() {
     super();
-    // Você pode anexar um Shadow DOM para encapsular o estilo
     this.attachShadow({ mode: 'open' });
   }
 
+  /**
+   * Callback executado quando o elemento é inserido no DOM
+   */
   connectedCallback() {
-    // Chamado quando o elemento é inserido no DOM
     this.render();
   }
 
+  /**
+   * Renderiza a carta com base nos atributos fornecidos
+   */
   render() {
     const tipos = this.getAttribute('tipos');
     const valor = this.getAttribute('valor');
 
-    // Mapear tipos para símbolos Unicode
     const suitMap: { [key: string]: string } = {
       'ouros': '♦',
       'copas': '♥',
@@ -24,7 +35,6 @@ class GameCard extends HTMLElement {
     };
 
     const suitSymbol = tipos ? suitMap[tipos] || tipos : '?';
-    // Definir cor do naipe
     const suitColor = (suitSymbol === '♥' || suitSymbol === '♦') ? '#e74c3c' : '#2c3e50';
 
     // HTML e CSS do componente vão aqui
@@ -87,8 +97,9 @@ class GameCard extends HTMLElement {
   }
 }
 
-// Registrar o componente
+/**
+ * Registra o componente customizado no navegador
+ */
 customElements.define('game-card', GameCard);
 
-// Exporta a classe para poder ser importada
 export default GameCard;

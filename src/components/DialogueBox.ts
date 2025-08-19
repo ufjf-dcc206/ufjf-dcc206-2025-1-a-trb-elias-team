@@ -1,4 +1,12 @@
-// DialogueBox.ts - Componente para caixas de diálogo
+/**
+ * DialogueBox.ts - Componente Web para sistema de diálogos
+ * Gerencia exibição sequencial de textos com interface interativa
+ */
+
+/**
+ * Componente customizado para exibição de diálogos narrativos
+ * Suporta navegação sequencial e controles de usuário
+ */
 export default class DialogueBox extends HTMLElement {
   private dialogueShadow: ShadowRoot;
   private currentDialogueIndex = 0;
@@ -12,10 +20,16 @@ export default class DialogueBox extends HTMLElement {
     this.render();
   }
 
+  /**
+   * Callback executado quando o elemento é conectado ao DOM
+   */
   connectedCallback() {
     this.updateFromAttributes();
   }
 
+  /**
+   * Define quais atributos o componente observa para mudanças
+   */
   static get observedAttributes() {
     return ['dialogues', 'character', 'character-name', 'current-index'];
   }

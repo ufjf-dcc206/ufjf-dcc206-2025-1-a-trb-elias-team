@@ -1,18 +1,29 @@
-// src/logic/pontuacao.ts
+/**
+ * Sistema de Pontuação do BAR-latro
+ * 
+ * Módulo responsável por calcular pontuações baseadas no sistema do Balatro.
+ * Combina valores das cartas com multiplicadores baseados na raridade das mãos
+ * para determinar a pontuação final de uma jogada.
+ */
+
 import { TipoMao, Carta, Valor } from './tipos';
 
-// Sistema de pontuação baseado no Balatro
+/**
+ * Interface para informações de pontuação calculada
+ */
 export interface PontuacaoInfo {
-  pontos: number; // Soma dos valores das cartas
-  multiplicador: number; // Multiplicador baseado na raridade da mão
+  pontos: number;
+  multiplicador: number;
   tipoMao: TipoMao;
   descricao: string;
-  total: number; // pontos × multiplicador
+  total: number;
 }
 
-// Valores das cartas para pontuação
+/**
+ * Valores das cartas para cálculo de pontuação
+ */
 export const VALORES_CARTAS: Record<Valor, number> = {
-  'A': 15,  // Ás vale 15
+  'A': 15,
   '2': 2,
   '3': 3,
   '4': 4,
@@ -22,12 +33,14 @@ export const VALORES_CARTAS: Record<Valor, number> = {
   '8': 8,
   '9': 9,
   '10': 10,
-  'J': 10,  // Figura vale 10
-  'Q': 10,  // Figura vale 10
-  'K': 10   // Figura vale 10
+  'J': 10,
+  'Q': 10,
+  'K': 10
 };
 
-// Multiplicadores base para cada tipo de mão (raridade)
+/**
+ * Multiplicadores base para cada tipo de mão baseado na raridade
+ */
 export const MULTIPLICADORES_BASE: Record<TipoMao, number> = {
   'Royal Flush': 8,
   'Straight Flush': 6,
@@ -57,6 +70,8 @@ export const DESCRICOES_MAOS: Record<TipoMao, string> = {
 
 /**
  * Calcula a soma dos valores das cartas
+ * @param cartas Array de cartas para somar
+ * @returns Soma total dos valores das cartas
  */
 function calcularSomaCartas(cartas: Carta[]): number {
   return cartas.reduce((soma, carta) => soma + VALORES_CARTAS[carta.valor], 0);
@@ -64,8 +79,9 @@ function calcularSomaCartas(cartas: Carta[]): number {
 
 /**
  * Calcula a pontuação final de uma mão
- * Apenas a maior combinação das cartas jogadas pontua
- * Pontuação = soma dos valores das cartas × multiplicador da mão
+ * @param tipoMao Tipo da combinação encontrada
+ * @param cartas Cartas que formam a combinação
+ * @returns Informações completas da pontuação calculada
  */
 export function calcularPontuacao(tipoMao: TipoMao, cartas: Carta[]): PontuacaoInfo {
   const pontos = calcularSomaCartas(cartas);

@@ -1,4 +1,8 @@
-// GameManager.ts - Gerenciador central do jogo
+/**
+ * GameManager.ts - Gerenciador central do jogo BAR-latro
+ * Controla fluxo de jogo, cenas, rodadas e eventos do sistema
+ */
+
 import GameState from './gameState';
 
 export type GameScene = 'bar-scene' | 'game-board' | 'victory' | 'defeat';
@@ -9,6 +13,10 @@ export interface RodadaInfo {
   dificuldade: string;
 }
 
+/**
+ * Classe principal que gerencia o estado global do jogo
+ * Controla transições de cena, eventos e progresso das rodadas
+ */
 export class GameManager {
   private gameState: GameState | null = null;
   private currentScene: GameScene = 'bar-scene';
@@ -19,6 +27,9 @@ export class GameManager {
     this.initializeCallbacks();
   }
 
+  /**
+   * Inicializa sistema de callbacks para eventos do jogo
+   */
   private initializeCallbacks() {
     this.callbacks.set('sceneChange', []);
     this.callbacks.set('roundStart', []);
@@ -27,7 +38,9 @@ export class GameManager {
     this.callbacks.set('defeat', []);
   }
 
-  // Registrar callbacks para eventos
+  /**
+   * Registra callback para evento específico
+   */
   on(event: string, callback: Function) {
     if (!this.callbacks.has(event)) {
       this.callbacks.set(event, []);
@@ -35,36 +48,42 @@ export class GameManager {
     this.callbacks.get(event)!.push(callback);
   }
 
+  /**
+   * Emite evento para todos os callbacks registrados
+   */
   private emit(event: string, data?: any) {
     const eventCallbacks = this.callbacks.get(event) || [];
     eventCallbacks.forEach(callback => callback(data));
   }
 
-  // Inicializar o jogo
+  /**
+   * Inicializa o jogo com baralho embaralhado
+   */
   initialize(deck: any[]) {
-    console.log('🎮 GameManager.initialize chamado com deck:', deck.length, 'cartas');
     this.gameState = new GameState(deck);
     this.currentScene = 'bar-scene';
     this.rodadaAtual = 0;
-    console.log('🎮 GameManager inicializado com GameState');
   }
 
-  // Mudar de cena
+  /**
+   * Altera a cena atual do jogo e emite evento de mudança
+   */
   changeScene(newScene: GameScene) {
     const oldScene = this.currentScene;
     this.currentScene = newScene;
     
-    console.log(`🎭 Mudança de cena: ${oldScene} → ${newScene}`);
     this.emit('sceneChange', { from: oldScene, to: newScene });
   }
 
-  // Iniciar nova rodada
+  /**
+   * Inicia a próxima rodada do jogo
+   * Gerencia transição da rodada 0 para 1 e dobramento de pontos
+   */
   iniciarProximaRodada(): RodadaInfo {
     if (!this.gameState) {
       throw new Error('GameState não inicializado');
     }
 
-    // Se estamos na rodada 0 (cena inicial), ir para rodada 1
     if (this.rodadaAtual === 0) {
       this.rodadaAtual = 1;
       const rodadaInfo: RodadaInfo = {
@@ -73,21 +92,17 @@ export class GameManager {
         dificuldade: this.getDificuldadeText(this.rodadaAtual)
       };
       
-      console.log('🎲 Primeira rodada real iniciada:', rodadaInfo);
       this.emit('roundStart', rodadaInfo);
       return rodadaInfo;
     }
 
-    // Dobrar a meta de pontos para rodadas subsequentes
     const novaMetaDePontos = this.gameState.getMetaDePontos() * 2;
     
-    // Resetar valores
     this.gameState.resetarRodada(novaMetaDePontos);
     
-    // Incrementar rodada
     this.rodadaAtual++;
     if(this.rodadaAtual >= 6){
-      this.rodadaAtual = 6; // Limitar a 6 rodadas
+      this.rodadaAtual = 6;
     }
 
     const rodadaInfo: RodadaInfo = {
@@ -96,12 +111,14 @@ export class GameManager {
       dificuldade: this.getDificuldadeText(this.rodadaAtual)
     };
 
-    console.log('🎲 Nova rodada iniciada:', rodadaInfo);
     this.emit('roundStart', rodadaInfo);
     
     return rodadaInfo;
   }
 
+  /**
+   * Retorna texto de dificuldade baseado no número da rodada
+   */
   private getDificuldadeText(rodada: number): string {
     if (rodada === 1) return 'Iniciante';
     if (rodada === 2) return 'Fácil';
@@ -111,15 +128,15 @@ export class GameManager {
     return 'Mestre';
   }
 
-  // Verificar condições de vitória/derrota
+  /**
+   * Verifica condições de vitória/derrota da rodada atual
+   */
   verificarCondicoesJogo(): 'playing' | 'victory' | 'defeat' {
     if (!this.gameState) return 'playing';
 
     const stats = this.gameState.getEstatisticas();
     
-    // Verificar vitória
     if (stats.pontuacaoAtual >= stats.metaDePontos) {
-      console.log('🏆 Condição de vitória atingida!');
       this.emit('victory', { 
         rodada: this.rodadaAtual,
         pontuacao: stats.pontuacaoAtual,
@@ -128,9 +145,7 @@ export class GameManager {
       return 'victory';
     }
     
-    // Verificar derrota
     if (stats.maosRestantes === 0 && stats.pontuacaoAtual < stats.metaDePontos) {
-      console.log('💔 Condição de derrota atingida!');
       this.emit('defeat', {
         rodada: this.rodadaAtual,
         pontuacao: stats.pontuacaoAtual,
@@ -142,42 +157,48 @@ export class GameManager {
     return 'playing';
   }
 
-  // Processar ação do jogador e verificar condições
+  /**
+   * Processa ação do jogador e verifica resultado da rodada
+   */
   processarAcaoJogador(action: string, data?: any): 'continue' | 'victory' | 'defeat' {
     if (!this.gameState) return 'continue';
 
-    // Executar a ação no gameState aqui se necessário
-    // (ou deixar que seja feito externamente)
-
-    // Emitir evento de atualização após ação
     this.emit('gameStateUpdated', {
       cards: this.gameState.getPlayerHand(),
       stats: this.gameState.getEstatisticas()
     });
 
-    // Verificar condições após a ação
     const resultado = this.verificarCondicoesJogo();
     
-    // Mapear resultado
     if (resultado === 'victory') return 'victory';
     if (resultado === 'defeat') return 'defeat';
     return 'continue';
   }
 
-  // Getters
+  /**
+   * Retorna a cena atual do jogo
+   */
   getCurrentScene(): GameScene {
     return this.currentScene;
   }
 
+  /**
+   * Retorna o número da rodada atual
+   */
   getRodadaAtual(): number {
     return this.rodadaAtual;
   }
 
+  /**
+   * Retorna instância do GameState
+   */
   getGameState(): GameState | null {
     return this.gameState;
   }
 
-  // Método utilitário para emitir atualização do gameState
+  /**
+   * Emite evento de atualização do estado do jogo
+   */
   emitGameStateUpdate() {
     if (this.gameState) {
       this.emit('gameStateUpdated', {
@@ -187,54 +208,55 @@ export class GameManager {
     }
   }
 
-  // Reiniciar jogo completamente
+  /**
+   * Reinicia o jogo completamente com novo baralho
+   */
   reiniciarJogo(deck: any[]) {
     this.gameState = new GameState(deck);
     this.currentScene = 'bar-scene';
     this.rodadaAtual = 0;
-    console.log('🔄 Jogo reiniciado');
   }
 
-  // Continuar para próxima rodada (após vitória)
+  /**
+   * Continua para próxima rodada após vitória
+   */
   continuarParaProximaRodada() {
     const rodadaInfo = this.iniciarProximaRodada();
-    this.changeScene('bar-scene'); // Voltar ao bar para diálogo
+    this.changeScene('bar-scene');
     return rodadaInfo;
   }
 
-  // Ir para a mesa de jogo
+  /**
+   * Transiciona para a mesa de jogo e inicializa mão do jogador
+   */
   irParaMesaDeJogo() {
-    console.log('🎮 GameManager.irParaMesaDeJogo chamado');
     this.changeScene('game-board');
     
     if (this.gameState) {
-      console.log('🃏 Inicializando mão com 7 cartas...');
-      // Inicializar mão com 7 cartas
       const cartas = this.gameState.inicializarMao(7);
-      console.log('🃏 Mão inicializada:', cartas.length, 'cartas', cartas);
       
-      // Emitir evento de atualização de jogo
       this.emit('gameStateUpdated', {
         cards: cartas,
         stats: this.gameState.getEstatisticas()
       });
-    } else {
-      console.error('❌ GameState não encontrado!');
     }
   }
 
-  // Aceitar o desafio inicial (sair da rodada 0 para rodada 1)
+  /**
+   * Aceita o desafio inicial e transiciona da rodada 0 para 1
+   */
   aceitarDesafioInicial() {
     if (this.rodadaAtual === 0) {
       const rodadaInfo = this.iniciarProximaRodada();
-      console.log('🎯 Desafio inicial aceito! Iniciando primeira rodada real.');
       return rodadaInfo;
     }
     return null;
   }
 }
 
-// Instância singleton
+/**
+ * Instância singleton do GameManager para uso global
+ */
 export const gameManager = new GameManager();
 
 export default GameManager;

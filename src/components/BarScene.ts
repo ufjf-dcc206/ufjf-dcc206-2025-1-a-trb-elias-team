@@ -1,8 +1,16 @@
-// BarScene.ts - Componente para a cena do bar
+/**
+ * BarScene.ts - Componente Web para a cena do bar
+ * Gerencia diálogos narrativos e interface do ambiente do bar
+ */
+
+/**
+ * Componente personalizado que representa a cena do bar do jogo
+ * Exibe diálogos contextuais baseados na rodada atual
+ */
 export default class BarScene extends HTMLElement {
   private barShadow: ShadowRoot;
   private dialogues: { [key: number]: string[] } = {
-    0: [ // Cena introdutória
+    0: [
       "🍺 Bem-vindo ao BAR-latro! Eu sou o dono deste estabelecimento.",
       "😊 Este é um bar comum e feliz onde todos gostam de festejar e estar à vontade.",
       "🎲 Mas temos uma regra especial aqui: quem me vencer no 'balatro' não paga a conta!",
@@ -55,20 +63,32 @@ export default class BarScene extends HTMLElement {
     this.render();
   }
 
+  /**
+   * Callback executado quando o elemento é conectado ao DOM
+   */
   connectedCallback() {
     this.updateFromAttributes();
   }
 
+  /**
+   * Define quais atributos o componente observa para mudanças
+   */
   static get observedAttributes() {
     return ['rodada-info'];
   }
 
+  /**
+   * Callback executado quando atributos observados mudam
+   */
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     if (name === 'rodada-info' && oldValue !== newValue) {
       this.updateFromAttributes();
     }
   }
 
+  /**
+   * Atualiza o componente baseado nos atributos atuais
+   */
   private updateFromAttributes() {
     const rodadaInfoAttr = this.getAttribute('rodada-info');
     if (rodadaInfoAttr) {
@@ -81,12 +101,14 @@ export default class BarScene extends HTMLElement {
     }
   }
 
+  /**
+   * Atualiza o conteúdo visual com informações da rodada
+   */
   updateRodadaInfo(rodadaInfo: any) {
     const content = this.barShadow.querySelector('.bar-content');
     if (content) {
       content.innerHTML = `
         <div class="bar-atmosphere">
-          <!-- Elementos decorativos do bar -->
           <div class="bar-lights"></div>
           <div class="smoke-effect"></div>
         </div>
@@ -132,25 +154,23 @@ export default class BarScene extends HTMLElement {
         </div>
       `;
 
-      // Configurar o diálogo
       this.setupDialogue(rodadaInfo.numero);
-      
-      // Configurar event listeners
       this.setupEventListeners();
     }
   }
 
+  /**
+   * Configura o sistema de diálogos baseado na rodada
+   */
   private setupDialogue(roundNumber: number) {
     const dialogueBox = this.barShadow.querySelector('#mainDialogue') as any;
     if (dialogueBox) {
-      const roundDialogues = this.dialogues[roundNumber] || this.dialogues[5]; // Default para rodadas muito altas
+      const roundDialogues = this.dialogues[roundNumber] || this.dialogues[5];
       
-      // Aguardar o componente estar pronto
       setTimeout(() => {
         dialogueBox.setDialogues(roundDialogues, '🧔', 'Bartender');
       }, 100);
 
-      // Event listeners do diálogo
       dialogueBox.addEventListener('dialogueComplete', () => {
         this.dispatchEvent(new CustomEvent('startGame', {
           bubbles: true,
@@ -166,12 +186,14 @@ export default class BarScene extends HTMLElement {
       });
 
       dialogueBox.addEventListener('dialogueNext', () => {
-        // Adicionar efeito sonoro ou vibração aqui no futuro
         console.log('📖 Próximo diálogo');
       });
     }
   }
 
+  /**
+   * Configura event listeners dos botões de interface
+   */
   private setupEventListeners() {
     const quickStartBtn = this.barShadow.querySelector('#quickStartBtn');
 
@@ -185,6 +207,9 @@ export default class BarScene extends HTMLElement {
     }
   }
 
+  /**
+   * Renderiza a estrutura HTML e estilos CSS do componente
+   */
   private render() {
     this.barShadow.innerHTML = `
       <style>
@@ -472,12 +497,6 @@ export default class BarScene extends HTMLElement {
         @keyframes slide-up {
           0% {
             transform: translateY(100px);
-            opacity: 0;
-          }
-          100% {
-            transform: translateY(0);
-            opacity: 1;
-          }
         }
       </style>
       
@@ -488,5 +507,7 @@ export default class BarScene extends HTMLElement {
   }
 }
 
-// Registrar o componente
+/**
+ * Registra o componente customizado no navegador
+ */
 customElements.define('bar-scene', BarScene);

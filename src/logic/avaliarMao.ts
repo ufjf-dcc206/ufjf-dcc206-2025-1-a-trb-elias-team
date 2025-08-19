@@ -1,9 +1,18 @@
-// src/logic/avaliarMao.ts
+/**
+ * Sistema de Avaliação de Mãos de Poker - BAR-latro
+ * 
+ * Módulo responsável por identificar e avaliar combinações de cartas no poker.
+ * Implementa algoritmos para reconhecer desde carta alta até sequência real,
+ * calculando valores para comparação entre mãos.
+ */
+
 import { Carta, Valor, TipoMao } from './tipos';
 
-// Mapeamento dos valores das cartas para ordenação
+/**
+ * Mapeamento dos valores das cartas para ordenação
+ */
 const valorOrdem: { [key in Valor]: number } = {
-  'A': 1,   // Ás vale 1 (pode também valer 14 para sequências altas)
+  'A': 1,
   '2': 2,
   '3': 3,
   '4': 4,
@@ -18,16 +27,20 @@ const valorOrdem: { [key in Valor]: number } = {
   'K': 13
 };
 
-// Tipo para resultado da avaliação
+/**
+ * Interface para resultado da avaliação de mão
+ */
 export interface ResultadoMao {
   tipo: TipoMao;
-  valor: number; // Para comparação entre mãos do mesmo tipo
+  valor: number;
   cartasUtilizadas: Carta[];
   descricao: string;
 }
 
 /**
- * Ordena as cartas pelo valor (do menor para o maior)
+ * Ordena as cartas pelo valor (menor para maior)
+ * @param cartas Array de cartas a serem ordenadas
+ * @returns Array de cartas ordenadas
  */
 function ordenarCartas(cartas: Carta[]): Carta[] {
   return [...cartas].sort((a, b) => valorOrdem[a.valor] - valorOrdem[b.valor]);
@@ -35,6 +48,8 @@ function ordenarCartas(cartas: Carta[]): Carta[] {
 
 /**
  * Conta quantas cartas de cada valor existem
+ * @param cartas Array de cartas para contagem
+ * @returns Map com valor das cartas e sua quantidade
  */
 function contarValores(cartas: Carta[]): Map<Valor, number> {
   const contagem = new Map<Valor, number>();
@@ -49,6 +64,8 @@ function contarValores(cartas: Carta[]): Map<Valor, number> {
 
 /**
  * Conta quantas cartas de cada naipe existem
+ * @param cartas Array de cartas para contagem
+ * @returns Map com naipe das cartas e sua quantidade
  */
 function contarNaipes(cartas: Carta[]): Map<string, number> {
   const contagem = new Map<string, number>();
@@ -63,6 +80,8 @@ function contarNaipes(cartas: Carta[]): Map<string, number> {
 
 /**
  * Verifica se há uma Quadra (4 cartas do mesmo valor)
+ * @param cartas Array de cartas a verificar
+ * @returns ResultadoMao se for Quadra, null caso contrário
  */
 function eQuadra(cartas: Carta[]): ResultadoMao | null {
   const contagem = contarValores(cartas);
@@ -83,7 +102,9 @@ function eQuadra(cartas: Carta[]): ResultadoMao | null {
 }
 
 /**
- * Verifica se há um Full House (Trinca + Par)
+ * Verifica se há um Full House (trinca + par)
+ * @param cartas Array de cartas a verificar
+ * @returns ResultadoMao se for Full House, null caso contrário
  */
 function eFullHouse(cartas: Carta[]): ResultadoMao | null {
   const contagem = contarValores(cartas);
@@ -138,6 +159,8 @@ function eFullHouse(cartas: Carta[]): ResultadoMao | null {
 
 /**
  * Verifica se há um Flush (5 cartas do mesmo naipe)
+ * @param cartas Array de cartas a verificar
+ * @returns ResultadoMao se for Flush, null caso contrário
  */
 function eFlush(cartas: Carta[]): ResultadoMao | null {
   const contagem = contarNaipes(cartas);
@@ -164,6 +187,8 @@ function eFlush(cartas: Carta[]): ResultadoMao | null {
 
 /**
  * Verifica se há uma Sequência (Straight)
+ * @param cartas Array de cartas a verificar
+ * @returns ResultadoMao se for Straight, null caso contrário
  */
 function eStraight(cartas: Carta[]): ResultadoMao | null {
   if (cartas.length < 5) return null;

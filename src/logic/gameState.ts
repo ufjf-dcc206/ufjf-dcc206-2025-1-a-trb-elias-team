@@ -1,4 +1,11 @@
-// src/logic/gameState.ts
+/**
+ * Gerenciador de Estado do Jogo BAR-latro
+ * 
+ * Classe responsável por manter e gerenciar todo o estado do jogo,
+ * incluindo cartas, pontuação, metas e regras de negócio.
+ * Centraliza a lógica de manipulação de cartas e progresso.
+ */
+
 import { Carta } from './tipos';
 import { shuffle } from './baralho';
 
@@ -6,43 +13,68 @@ export class GameState {
   private playerHand: Carta[] = [];
   private deck: Carta[] = [];
   private discardPile: Carta[] = [];
-  private originalDeck: Carta[] = []; // Referência ao deck original completo
+  private originalDeck: Carta[] = [];
   private maxHandSize = 8;
 
-  // Variáveis do estado do jogo
   private pontuacaoAtual = 0;
   private metaDePontos = 100;
   private maosRestantes = 4;
   private descartesRestantes = 3;
 
+  /**
+   * Construtor do GameState
+   * @param initialDeck Baralho inicial completo
+   */
   constructor(initialDeck: Carta[]) {
-    this.originalDeck = [...initialDeck]; // Salvar deck original completo
-    this.deck = [...initialDeck]; // Cópia do baralho para usar
+    this.originalDeck = [...initialDeck];
+    this.deck = [...initialDeck];
   }
 
-  // Getters para o estado do jogo
+  /**
+   * Obtém pontuação atual do jogador
+   * @returns Pontuação atual
+   */
   getPontuacaoAtual(): number {
     return this.pontuacaoAtual;
   }
 
+  /**
+   * Obtém meta de pontos para vencer
+   * @returns Meta de pontos
+   */
   getMetaDePontos(): number {
     return this.metaDePontos;
   }
 
+  /**
+   * Obtém número de mãos restantes
+   * @returns Mãos restantes
+   */
   getMaosRestantes(): number {
     return this.maosRestantes;
   }
 
+  /**
+   * Obtém número de descartes restantes
+   * @returns Descartes restantes
+   */
   getDescartesRestantes(): number {
     return this.descartesRestantes;
   }
 
-  // Métodos para atualizar o estado do jogo
+  /**
+   * Adiciona pontos à pontuação atual
+   * @param pontos Quantidade de pontos a adicionar
+   */
   adicionarPontos(pontos: number): void {
     this.pontuacaoAtual += pontos;
     console.log(`🎯 +${pontos} pontos! Total: ${this.pontuacaoAtual}/${this.metaDePontos}`);
   }
 
+  /**
+   * Processa jogada de uma mão
+   * @returns true se sucesso, false se não há mãos restantes
+   */
   jogarMao(): boolean {
     if (this.maosRestantes <= 0) {
       console.warn('⚠️ Não há mais mãos restantes!');
@@ -50,11 +82,15 @@ export class GameState {
     }
     
     this.maosRestantes--;
-    this.descartesRestantes = 3; // Resetar descartes para a próxima mão
+    this.descartesRestantes = 3;
     console.log(`🎮 Mão jogada! Restantes: ${this.maosRestantes}`);
     return true;
   }
 
+  /**
+   * Usa um descarte disponível
+   * @returns true se sucesso, false se não há descartes restantes
+   */
   usarDescarte(): boolean {
     if (this.descartesRestantes <= 0) {
       console.warn('⚠️ Não há mais descartes restantes!');

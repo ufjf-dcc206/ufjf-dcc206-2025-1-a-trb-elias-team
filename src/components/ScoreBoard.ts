@@ -1,27 +1,53 @@
-// ScoreBoard.ts - Componente para exibir informações do jogo
+/**
+ * Componente ScoreBoard - Placar do jogo BAR-latro
+ * 
+ * Web component responsável por exibir informações de pontuação,
+ * estatísticas da rodada atual e progresso do jogador.
+ * Oferece interface visual para acompanhar desempenho durante o jogo.
+ */
 export default class ScoreBoard extends HTMLElement {
   private scoreboardShadow: ShadowRoot;
 
+  /**
+   * Construtor do componente ScoreBoard
+   * Inicializa Shadow DOM e renderiza interface
+   */
   constructor() {
     super();
     this.scoreboardShadow = this.attachShadow({ mode: 'open' });
     this.render();
   }
 
+  /**
+   * Callback executado quando elemento é conectado ao DOM
+   */
   connectedCallback() {
     this.updateFromAttributes();
   }
 
+  /**
+   * Define atributos observados pelo componente
+   * @returns Array com nomes dos atributos a serem observados
+   */
   static get observedAttributes() {
     return ['stats'];
   }
 
+  /**
+   * Callback executado quando atributos observados mudam
+   * @param name Nome do atributo alterado
+   * @param oldValue Valor anterior do atributo
+   * @param newValue Novo valor do atributo
+   */
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     if (name === 'stats' && oldValue !== newValue) {
       this.updateFromAttributes();
     }
   }
 
+  /**
+   * Atualiza componente baseado nos atributos atuais
+   */
   private updateFromAttributes() {
     const statsAttr = this.getAttribute('stats');
     if (statsAttr) {
@@ -34,17 +60,19 @@ export default class ScoreBoard extends HTMLElement {
     }
   }
 
+  /**
+   * Atualiza estatísticas exibidas no placar
+   * @param stats Objeto com dados estatísticos do jogo
+   */
   updateStats(stats: any) {
     const container = this.scoreboardShadow.querySelector('.score-container');
     if (container) {
-      // Calcular percentual de progresso
       const progressPercent = Math.min((stats.pontuacaoAtual / stats.metaDePontos) * 100, 100);
       
-      // Determinar cor do progresso baseado no percentual
-      let progressColor = '#ff6b6b'; // Vermelho para baixo
-      if (progressPercent >= 75) progressColor = '#51cf66'; // Verde para alto
-      else if (progressPercent >= 50) progressColor = '#ffd43b'; // Amarelo para médio
-      else if (progressPercent >= 25) progressColor = '#ff922b'; // Laranja para baixo-médio
+      let progressColor = '#ff6b6b';
+      if (progressPercent >= 75) progressColor = '#51cf66';
+      else if (progressPercent >= 50) progressColor = '#ffd43b';
+      else if (progressPercent >= 25) progressColor = '#ff922b';
       
       container.innerHTML = `
         <!-- Título do Placar -->
@@ -140,7 +168,10 @@ export default class ScoreBoard extends HTMLElement {
     requestAnimationFrame(animate);
   }
 
-  // Animar barra de progresso
+  /**
+   * Anima barra de progresso com efeito suave
+   * @param targetPercent Porcentagem alvo da animação
+   */
   private animateProgressBar(targetPercent: number) {
     const progressBar = this.scoreboardShadow.querySelector('#progressFill') as HTMLElement;
     if (!progressBar) return;
@@ -152,7 +183,6 @@ export default class ScoreBoard extends HTMLElement {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
-      // Easing function (easeOutCubic)
       const easeProgress = 1 - Math.pow(1 - progress, 3);
       const currentPercent = targetPercent * easeProgress;
       
@@ -166,6 +196,12 @@ export default class ScoreBoard extends HTMLElement {
     requestAnimationFrame(animate);
   }
 
+  /**
+   * Gera mensagem de status baseada no progresso atual
+   * @param stats Dados estatísticos do jogo
+   * @param progressPercent Porcentagem de progresso atual
+   * @returns HTML string com mensagem de status
+   */
   private getGameStatusMessage(stats: any, progressPercent: number): string {
     if (stats.pontuacaoAtual >= stats.metaDePontos) {
       return '<div class="status-message victory">🎉 VITÓRIA! Meta atingida!</div>';
@@ -190,6 +226,9 @@ export default class ScoreBoard extends HTMLElement {
     return '<div class="status-message info">🎯 Foque em mãos de alto valor!</div>';
   }
 
+  /**
+   * Renderiza a interface do componente ScoreBoard
+   */
   private render() {
     this.scoreboardShadow.innerHTML = `
       <style>
@@ -430,5 +469,7 @@ export default class ScoreBoard extends HTMLElement {
   }
 }
 
-// Registrar o componente
+/**
+ * Registra o componente ScoreBoard no customElements
+ */
 customElements.define('score-board', ScoreBoard);

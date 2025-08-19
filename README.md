@@ -76,8 +76,8 @@ Alcance a meta de pontos em até **8 mãos** com apenas **5 descartes** disponí
 
 1. **Clone o repositório** <br>
 bash <br>
-git clone https://github.com/seu-usuario/ICE-latro.git <br>
-cd ICE-latro <br>
+git clone https://github.com/seu-usuario/BAR-latro.git <br>
+cd BAR-latro <br>
 
 
 2. **Instale as dependências** <br>

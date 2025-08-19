@@ -1,6 +1,7 @@
 // src/components/PlayerHand.ts
 import { Carta } from '../logic/tipos';
 import { avaliarMao } from '../logic/avaliarMao';
+import { calcularPontuacao } from '../logic/pontuacao';
 
 class PlayerHand extends HTMLElement {
   private selectedCards: Set<HTMLElement> = new Set();
@@ -15,6 +16,24 @@ class PlayerHand extends HTMLElement {
   connectedCallback() {
     this.render();
     this.setupEventListeners();
+  }
+
+  static get observedAttributes() {
+    return ['cards', 'stats'];
+  }
+
+  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+    if (oldValue !== newValue) {
+      if (name === 'cards') {
+        console.log('🃏 PlayerHand recebeu novas cartas:', newValue);
+        this.clearSelection(); // Limpar seleção quando cartas mudarem
+        this.render();
+      } else if (name === 'stats') {
+        console.log('📊 PlayerHand recebeu novas stats:', newValue);
+        this.render();
+        this.updateButtons(); // Atualizar botões quando stats mudarem
+      }
+    }
   }
 
   // Método para definir callback de comunicação com o estado do jogo
@@ -113,17 +132,36 @@ class PlayerHand extends HTMLElement {
     // Obter dados das cartas selecionadas
     const selectedCardData = this.getSelectedCardsData();
     
+    // Emitir evento customizado
+    this.dispatchEvent(new CustomEvent('cards-discarded', {
+      bubbles: true,
+      detail: { cards: selectedCardData }
+    }));
+
+    this.showMessage(`🗑️ ${selectedCardData.length} carta(s) descartada(s). Use "Sacar Carta" para repor!`, 'success');
+    
+    // Limpar seleção imediatamente pois as cartas serão removidas
+    this.clearSelection();
+    
+    // Callback legacy (manter compatibilidade)
     if (this.gameStateCallback) {
       this.gameStateCallback('discard', selectedCardData);
-      this.showMessage(`🗑️ ${selectedCardData.length} carta(s) descartada(s)`, 'success');
     }
   }
 
   // Lidar com sacar cartas
   handleDraw() {
+    // Emitir evento customizado
+    this.dispatchEvent(new CustomEvent('cards-drawn', {
+      bubbles: true,
+      detail: { quantidade: 1 }
+    }));
+
+    this.showMessage('🃏 Carta sacada!', 'success');
+    
+    // Callback legacy (manter compatibilidade)
     if (this.gameStateCallback) {
       this.gameStateCallback('draw', { quantity: 1 });
-      this.showMessage('🃏 Carta sacada!', 'success');
     }
   }
 
@@ -137,9 +175,35 @@ class PlayerHand extends HTMLElement {
     // Obter dados das cartas selecionadas
     const selectedCardData = this.getSelectedCardsData();
     
+    // Avaliar a mão para obter pontuação
+    const evaluation = avaliarMao(selectedCardData);
+    const pontuacao = calcularPontuacao(evaluation.tipo, selectedCardData);
+    console.log('🎯 Mão avaliada:', evaluation, 'Pontuação:', pontuacao);
+
+    // Emitir evento customizado com avaliação
+    this.dispatchEvent(new CustomEvent('hand-played', {
+      bubbles: true,
+      detail: { 
+        cards: selectedCardData,
+        evaluation: evaluation,
+        pontuacao: pontuacao,
+        pontos: pontuacao.total // Usar pontuação total (soma × multiplicador)
+      }
+    }));
+
+    this.showMessage(`🎯 ${evaluation.tipo} - ${pontuacao.total} pontos! (${pontuacao.pontos} × ${pontuacao.multiplicador}) Use "Sacar Carta" para repor!`, 'success');
+    
+    // Limpar seleção imediatamente pois as cartas serão removidas
+    this.clearSelection();
+    
+    // Callback legacy (manter compatibilidade)
     if (this.gameStateCallback) {
-      this.gameStateCallback('playHand', selectedCardData);
-      this.showMessage(`🎯 Mão jogada com ${selectedCardData.length} carta(s)!`, 'success');
+      this.gameStateCallback('playHand', {
+        cards: selectedCardData,
+        evaluation: evaluation,
+        pontuacao: pontuacao,
+        pontos: pontuacao.total // Usar pontuação total
+      });
     }
   }
 
@@ -191,13 +255,22 @@ class PlayerHand extends HTMLElement {
   updateButtons() {
     const discardBtn = this.shadowRoot!.querySelector('.discard-btn') as HTMLButtonElement;
     const playHandBtn = this.shadowRoot!.querySelector('.play-hand-btn') as HTMLButtonElement;
+    const drawBtn = this.shadowRoot!.querySelector('.draw-btn') as HTMLButtonElement;
+    
+    // Obter estatísticas do jogo para verificar limitações
+    const statsData = this.getAttribute('stats');
+    const stats = statsData ? JSON.parse(statsData) : {};
     
     if (discardBtn) {
-      discardBtn.disabled = this.selectedCards.size === 0;
+      discardBtn.disabled = this.selectedCards.size === 0 || !stats.podeDescartar;
     }
     
     if (playHandBtn) {
-      playHandBtn.disabled = this.selectedCards.size === 0;
+      playHandBtn.disabled = this.selectedCards.size === 0 || !stats.podeJogar;
+    }
+    
+    if (drawBtn) {
+      drawBtn.disabled = !stats.podeSacar;
     }
   }
 
@@ -238,6 +311,7 @@ class PlayerHand extends HTMLElement {
 
   render() {
     const cards = this.cards;
+    console.log('🎨 PlayerHand renderizando com cartas:', cards.length, cards);
     const statsData = this.getAttribute('stats');
     const stats = statsData ? JSON.parse(statsData) : {};
 
@@ -641,6 +715,9 @@ class PlayerHand extends HTMLElement {
     return result;
   }
 }
+
+// Registrar o componente
+customElements.define('player-hand', PlayerHand);
 
 // Exporta a classe para poder ser importada
 export default PlayerHand;  

@@ -6,6 +6,7 @@ export class GameState {
   private playerHand: Carta[] = [];
   private deck: Carta[] = [];
   private discardPile: Carta[] = [];
+  private originalDeck: Carta[] = []; // Referência ao deck original completo
   private maxHandSize = 8;
 
   // Variáveis do estado do jogo
@@ -15,7 +16,8 @@ export class GameState {
   private descartesRestantes = 3;
 
   constructor(initialDeck: Carta[]) {
-    this.deck = [...initialDeck]; // Cópia do baralho
+    this.originalDeck = [...initialDeck]; // Salvar deck original completo
+    this.deck = [...initialDeck]; // Cópia do baralho para usar
   }
 
   // Getters para o estado do jogo
@@ -138,14 +140,14 @@ export class GameState {
   }
 
   /**
-   * Descarta cartas selecionadas da mão e repõe com novas cartas do baralho
+   * Descarta cartas selecionadas da mão SEM reposição automática
    * @param cartasParaDescartar - Array de cartas a serem descartadas
-   * @returns Objeto com cartas descartadas e cartas sacadas
+   * @returns Array das cartas descartadas
    */
-  descartarCartas(cartasParaDescartar: Carta[]): { descartadas: Carta[], sacadas: Carta[] } {
+  descartarCartas(cartasParaDescartar: Carta[]): Carta[] {
     if (!cartasParaDescartar || cartasParaDescartar.length === 0) {
       console.warn('⚠️ Nenhuma carta fornecida para descarte');
-      return { descartadas: [], sacadas: [] };
+      return [];
     }
 
     const cartasDescartadas: Carta[] = [];
@@ -165,15 +167,42 @@ export class GameState {
       }
     });
 
-    console.log(`🗑️ Descartadas ${cartasDescartadas.length} cartas`);
+    console.log(`🗑️ Descartadas ${cartasDescartadas.length} cartas. Mão agora tem ${this.playerHand.length} cartas.`);
 
-    // Repor cartas sacando do baralho
-    const cartasSacadas = this.sacarCartas(cartasDescartadas.length);
+    return cartasDescartadas;
+  }
 
-    return {
-      descartadas: cartasDescartadas,
-      sacadas: cartasSacadas
-    };
+  /**
+   * Remove cartas jogadas da mão SEM reposição automática
+   * @param cartasJogadas - Array de cartas que foram jogadas
+   * @returns Array das cartas removidas
+   */
+  jogarCartas(cartasJogadas: Carta[]): Carta[] {
+    if (!cartasJogadas || cartasJogadas.length === 0) {
+      console.warn('⚠️ Nenhuma carta fornecida para jogar');
+      return [];
+    }
+
+    const cartasRemovidas: Carta[] = [];
+    
+    // Remover cada carta da mão do jogador
+    cartasJogadas.forEach(cartaJogada => {
+      const index = this.playerHand.findIndex(carta => 
+        carta.tipo === cartaJogada.tipo && carta.valor === cartaJogada.valor
+      );
+      
+      if (index !== -1) {
+        const [cartaRemovida] = this.playerHand.splice(index, 1);
+        cartasRemovidas.push(cartaRemovida);
+        this.discardPile.push(cartaRemovida);
+      } else {
+        console.warn('⚠️ Carta não encontrada na mão:', cartaJogada);
+      }
+    });
+
+    console.log(`🎯 Jogadas ${cartasRemovidas.length} cartas. Mão agora tem ${this.playerHand.length} cartas.`);
+
+    return cartasRemovidas;
   }
 
   /**
@@ -248,28 +277,31 @@ export class GameState {
   }
 
   /**
-   * Resetar para uma nova rodada
+   * Resetar para uma nova rodada - Restaura TODAS as cartas originais
    */
   resetarRodada(novaMetaDePontos: number) {
+    console.log(`🔄 Iniciando reset da rodada - Meta anterior: ${this.metaDePontos}, Nova meta: ${novaMetaDePontos}`);
+    
+    // Resetar pontuação e configurações
     this.pontuacaoAtual = 0;
     this.metaDePontos = novaMetaDePontos;
     this.maosRestantes = 8; // Resetar mãos
     this.descartesRestantes = 5; // Resetar descartes
     
-    // Limpar mão do jogador
+    // Limpar completamente a mão do jogador
+    console.log(`🃏 Limpando mão do jogador (${this.playerHand.length} cartas)`);
     this.playerHand = [];
     
-    // Embaralhar o deck novamente se necessário
-    if (this.deck.length + this.discardPile.length > 0) {
-      // Recolocar cartas descartadas no deck
-      this.deck.push(...this.discardPile);
-      this.discardPile = [];
-      
-      // Reembaralhar
-      this.deck = shuffle(this.deck);
-    }
+    // Restaurar deck original completo (todas as 52 cartas)
+    console.log(`🔄 Restaurando deck original completo (${this.originalDeck.length} cartas)`);
+    this.deck = [...this.originalDeck]; // Restaurar todas as cartas originais
+    this.discardPile = []; // Limpar monte de descarte
     
-    console.log(`🔄 Rodada resetada - Nova meta: ${novaMetaDePontos}`);
+    // Reembaralhar o deck completo
+    this.deck = shuffle(this.deck);
+    
+    console.log(`✅ Rodada resetada - Nova meta: ${novaMetaDePontos}`);
+    console.log(`📊 Estado após reset: Deck=${this.deck.length}, Mão=${this.playerHand.length}, Descarte=${this.discardPile.length}`);
   }
 }
 

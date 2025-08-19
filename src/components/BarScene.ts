@@ -3,7 +3,7 @@ export default class BarScene extends HTMLElement {
   private barShadow: ShadowRoot;
   private dialogues: { [key: number]: string[] } = {
     1: [
-      "🍺 Bem-vindo ao ICE-latro! Este é o lugar onde os melhores jogadores se reúnem.",
+      "🍺 Bem-vindo ao BAR-latro! Este é o lugar onde os melhores jogadores se reúnem.",
       "🎯 Vejo que você tem coragem para estar aqui. Que tal começar com algo simples?",
       "💰 A primeira rodada é sempre para testar suas habilidades básicas.",
       "🃏 10.000 pontos em 8 mãos. Parece fácil, mas você ficaria surpreso quantos falham..."
@@ -25,7 +25,7 @@ export default class BarScene extends HTMLElement {
     ],
     5: [
       "🚀 LENDÁRIO! Você transcendeu os limites humanos!",
-      "👑 160.000 pontos. Você é oficialmente um MESTRE DO ICE-LATRO!",
+      "👑 160.000 pontos. Você é oficialmente um MESTRE DO BAR-LATRO!",
       "🌌 Esta é a fronteira final. Poucos mortais chegaram até aqui..."
     ]
   };
@@ -468,3 +468,6 @@ export default class BarScene extends HTMLElement {
     `;
   }
 }
+
+// Registrar o componente
+customElements.define('bar-scene', BarScene);

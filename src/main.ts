@@ -90,7 +90,8 @@ class BARLatroGameApp {
     const rodadaAtual = gameManager.getRodadaAtual();
     const rodadaInfo = {
       numero: rodadaAtual,
-      metaDePontos: gameManager.getGameState()?.getMetaDePontos() || 100
+      metaDePontos: gameManager.getGameState()?.getMetaDePontos() || 100,
+      dificuldade: this.getDificuldadeTextLocal(rodadaAtual)
     };
     
     this.barScene.setAttribute('rodada-info', JSON.stringify(rodadaInfo));
@@ -446,6 +447,16 @@ class BARLatroGameApp {
         ">🔄 Tentar Novamente</button>
       </div>
     `;
+  }
+
+  private getDificuldadeTextLocal(rodada: number): string {
+    if (rodada === 0) return 'Apresentação';
+    if (rodada === 1) return 'Iniciante';
+    if (rodada === 2) return 'Fácil';
+    if (rodada === 3) return 'Médio';
+    if (rodada === 4) return 'Difícil';
+    if (rodada === 5) return 'Muito Difícil';
+    return 'Mestre';
   }
 }
 

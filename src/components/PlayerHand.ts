@@ -138,7 +138,10 @@ class PlayerHand extends HTMLElement {
       detail: { cards: selectedCardData }
     }));
 
-    this.showMessage(`🗑️ ${selectedCardData.length} carta(s) descartada(s)`, 'success');
+    this.showMessage(`🗑️ ${selectedCardData.length} carta(s) descartada(s). Use "Sacar Carta" para repor!`, 'success');
+    
+    // Limpar seleção imediatamente pois as cartas serão removidas
+    this.clearSelection();
     
     // Callback legacy (manter compatibilidade)
     if (this.gameStateCallback) {
@@ -188,7 +191,10 @@ class PlayerHand extends HTMLElement {
       }
     }));
 
-    this.showMessage(`🎯 ${evaluation.tipo} - ${pontuacao.pontos} pontos!`, 'success');
+    this.showMessage(`🎯 ${evaluation.tipo} - ${pontuacao.pontos} pontos! Use "Sacar Carta" para repor!`, 'success');
+    
+    // Limpar seleção imediatamente pois as cartas serão removidas
+    this.clearSelection();
     
     // Callback legacy (manter compatibilidade)
     if (this.gameStateCallback) {

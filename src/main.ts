@@ -169,6 +169,9 @@ class ICELatroGameApp {
       console.log('🎮 Mão jogada:', event.detail);
       const gameState = gameManager.getGameState();
       if (gameState) {
+        // Remover cartas jogadas da mão (SEM reposição automática)
+        gameState.jogarCartas(event.detail.cards);
+        
         // Processar a pontuação da mão jogada
         const pontos = event.detail.pontos || 0;
         gameState.adicionarPontos(pontos);
@@ -188,6 +191,7 @@ class ICELatroGameApp {
       console.log('🗑️ Cartas descartadas:', event.detail);
       const gameState = gameManager.getGameState();
       if (gameState) {
+        // Descartar cartas SEM reposição automática
         gameState.descartarCartas(event.detail.cards);
         gameState.usarDescarte();
         gameManager.emitGameStateUpdate(); // Emitir atualização

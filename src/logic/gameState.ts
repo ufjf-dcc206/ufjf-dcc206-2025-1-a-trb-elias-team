@@ -138,14 +138,14 @@ export class GameState {
   }
 
   /**
-   * Descarta cartas selecionadas da mão e repõe com novas cartas do baralho
+   * Descarta cartas selecionadas da mão SEM reposição automática
    * @param cartasParaDescartar - Array de cartas a serem descartadas
-   * @returns Objeto com cartas descartadas e cartas sacadas
+   * @returns Array das cartas descartadas
    */
-  descartarCartas(cartasParaDescartar: Carta[]): { descartadas: Carta[], sacadas: Carta[] } {
+  descartarCartas(cartasParaDescartar: Carta[]): Carta[] {
     if (!cartasParaDescartar || cartasParaDescartar.length === 0) {
       console.warn('⚠️ Nenhuma carta fornecida para descarte');
-      return { descartadas: [], sacadas: [] };
+      return [];
     }
 
     const cartasDescartadas: Carta[] = [];
@@ -165,15 +165,42 @@ export class GameState {
       }
     });
 
-    console.log(`🗑️ Descartadas ${cartasDescartadas.length} cartas`);
+    console.log(`🗑️ Descartadas ${cartasDescartadas.length} cartas. Mão agora tem ${this.playerHand.length} cartas.`);
 
-    // Repor cartas sacando do baralho
-    const cartasSacadas = this.sacarCartas(cartasDescartadas.length);
+    return cartasDescartadas;
+  }
 
-    return {
-      descartadas: cartasDescartadas,
-      sacadas: cartasSacadas
-    };
+  /**
+   * Remove cartas jogadas da mão SEM reposição automática
+   * @param cartasJogadas - Array de cartas que foram jogadas
+   * @returns Array das cartas removidas
+   */
+  jogarCartas(cartasJogadas: Carta[]): Carta[] {
+    if (!cartasJogadas || cartasJogadas.length === 0) {
+      console.warn('⚠️ Nenhuma carta fornecida para jogar');
+      return [];
+    }
+
+    const cartasRemovidas: Carta[] = [];
+    
+    // Remover cada carta da mão do jogador
+    cartasJogadas.forEach(cartaJogada => {
+      const index = this.playerHand.findIndex(carta => 
+        carta.tipo === cartaJogada.tipo && carta.valor === cartaJogada.valor
+      );
+      
+      if (index !== -1) {
+        const [cartaRemovida] = this.playerHand.splice(index, 1);
+        cartasRemovidas.push(cartaRemovida);
+        this.discardPile.push(cartaRemovida);
+      } else {
+        console.warn('⚠️ Carta não encontrada na mão:', cartaJogada);
+      }
+    });
+
+    console.log(`🎯 Jogadas ${cartasRemovidas.length} cartas. Mão agora tem ${this.playerHand.length} cartas.`);
+
+    return cartasRemovidas;
   }
 
   /**

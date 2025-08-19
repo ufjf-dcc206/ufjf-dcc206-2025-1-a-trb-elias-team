@@ -174,6 +174,9 @@ class ICELatroGameApp {
         gameState.adicionarPontos(pontos);
         gameState.jogarMao();
         
+        // Emitir atualização do GameState
+        gameManager.emitGameStateUpdate();
+        
         // Verificar resultado
         const result = gameManager.processarAcaoJogador('playHand', event.detail);
         this.handleGameResult(result);
@@ -214,8 +217,10 @@ class ICELatroGameApp {
     const gameState = gameManager.getGameState();
     if (gameState) {
       const cards = gameState.getPlayerHand();
+      const stats = gameState.getEstatisticas();
       console.log('🃏 Atualizando PlayerHand com cartas:', cards.length, cards);
       this.playerHand.setAttribute('cards', JSON.stringify(cards));
+      this.playerHand.setAttribute('stats', JSON.stringify(stats));
     } else {
       console.warn('⚠️ GameState não encontrado ao atualizar PlayerHand');
     }

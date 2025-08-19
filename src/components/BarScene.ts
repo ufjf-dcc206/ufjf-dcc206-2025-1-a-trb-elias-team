@@ -2,31 +2,50 @@
 export default class BarScene extends HTMLElement {
   private barShadow: ShadowRoot;
   private dialogues: { [key: number]: string[] } = {
+    0: [ // Cena introdutória
+      "🍺 Bem-vindo ao BAR-latro! Eu sou o dono deste estabelecimento.",
+      "😊 Este é um bar comum e feliz onde todos gostam de festejar e estar à vontade.",
+      "🎲 Mas temos uma regra especial aqui: quem me vencer no 'balatro' não paga a conta!",
+      "😏 Claro, isso raramente acontece... afinal, eu me considero o MELHOR jogador da cidade.",
+      "🃏 Você parece confiante. Que tal tentar sua sorte? 100 pontos e você bebe de graça!"
+    ],
     1: [
-      "🍺 Bem-vindo ao BAR-latro! Este é o lugar onde os melhores jogadores se reúnem.",
-      "🎯 Vejo que você tem coragem para estar aqui. Que tal começar com algo simples?",
-      "💰 A primeira rodada é sempre para testar suas habilidades básicas.",
-      "🃏 10.000 pontos em 8 mãos. Parece fácil, mas você ficaria surpreso quantos falham..."
+      "👨‍💼 Ah, um novo desafiante! Seja bem-vindo ao meu reino das cartas.",
+      "🎯 Você tem aquele olhar de quem acha que pode me derrotar... interessante.",
+      "💰 A aposta é simples: 100 pontos em 4 mãos. Se conseguir, a primeira rodada é por minha conta!",
+      "🃏 Mas não se iluda... sou imbatível há anos. Vamos ver se você tem o que é preciso!"
     ],
     2: [
-      "🎉 Impressionante! Você passou da primeira rodada!",
-      "🔥 Mas agora as coisas ficam mais sérias. 20.000 pontos desta vez.",
-      "� Os outros jogadores estão observando. Mostre do que você é capaz!"
+      "😮 Impressionante! Você realmente conseguiu me vencer na primeira rodada!",
+      "🔥 Mas calma lá, jovem. Uma andorinha só não faz verão. 200 pontos agora!",
+      "👥 Os outros clientes estão observando... parece que temos um verdadeiro jogador aqui!",
+      "😤 Não vou facilitar desta vez. Prepare-se para o verdadeiro desafio!"
     ],
     3: [
-      "🏆 Você está se tornando uma lenda por aqui!",
-      "💎 40.000 pontos agora. Apenas os verdadeiros mestres chegam até aqui.",
-      "⚡ Sinta a energia do bar... todos estão torcendo por você!"
+      "😱 Não pode ser! Você está realmente me dando trabalho!",
+      "💎 400 pontos agora... apenas os lendários chegaram tão longe contra mim.",
+      "⚡ O bar inteiro está em silêncio... todos querem ver se o 'imbatível' finalmente encontrou seu páreo!",
+      "😠 Mas eu não vou desistir! Esta é a minha casa, e EU que mando aqui!"
     ],
     4: [
-      "� Inacreditável! Você é realmente especial!",
-      "🎖️ 80.000 pontos. Isso é coisa de campeão mundial.",
-      "🔮 Poucos viram este nível de habilidade. Continue assim!"
+      "🤯 IMPOSSÍVEL! Como você conseguiu chegar até aqui?!",
+      "🎖️ 800 pontos... nem os jogadores profissionais da capital conseguiram isso!",
+      "😰 Estou começando a suar... será que finalmente encontrei alguém melhor que eu?",
+      "🔥 Mas esta é a MINHA última cartada! Não vou perder meu título sem luta!"
     ],
     5: [
-      "🚀 LENDÁRIO! Você transcendeu os limites humanos!",
-      "👑 160.000 pontos. Você é oficialmente um MESTRE DO BAR-LATRO!",
-      "🌌 Esta é a fronteira final. Poucos mortais chegaram até aqui..."
+      "😱 EU... EU FUI DERROTADO! Em MEU próprio bar!",
+      "👑 1600 pontos... você não é humano! É um MESTRE supremo das cartas!",
+      "👏 O bar inteiro está aplaudindo! Você fez história aqui hoje!",
+      "🏆 Parabéns... você oficialmente me destronaram. Todas as bebidas são por minha conta... para SEMPRE!",
+      "😅 Talvez seja hora de eu aprender algumas coisas com VOCÊ!"
+    ],
+    6: [
+      "🤝 Espera... já que você me ensinou tanto, que tal jogarmos mais uma rodada?",
+      "📚 Quero aprender com o mestre! Cada partida com você é uma lição valiosa.",
+      "♾️ Que comece nossa jornada infinita de aprendizado! Vamos ver até onde podemos chegar juntos!",
+      "🎯 Sem pressa, sem pressão... apenas dois jogadores aperfeiçoando sua arte!",
+      "🍺 Afinal, o que é um bar sem uma boa conversa e cartas na mesa? Vamos continuar!"
     ]
   };
 

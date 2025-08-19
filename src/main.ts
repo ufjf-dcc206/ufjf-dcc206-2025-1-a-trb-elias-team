@@ -87,9 +87,11 @@ class BARLatroGameApp {
     this.barScene = document.createElement('bar-scene');
     
     // Configurar informações da rodada atual
+    const rodadaAtual = gameManager.getRodadaAtual();
     const rodadaInfo = {
-      numero: gameManager.getRodadaAtual(),
-      metaDePontos: gameManager.getGameState()?.getMetaDePontos() || 100
+      numero: rodadaAtual,
+      metaDePontos: gameManager.getGameState()?.getMetaDePontos() || 100,
+      dificuldade: this.getDificuldadeTextLocal(rodadaAtual)
     };
     
     this.barScene.setAttribute('rodada-info', JSON.stringify(rodadaInfo));
@@ -97,6 +99,15 @@ class BARLatroGameApp {
     // Event listener para quando quiser iniciar o jogo
     this.barScene.addEventListener('startGame', (event: any) => {
       console.log('✅ Evento startGame recebido:', event.detail);
+      
+      // Se estamos na rodada 0 (cena inicial), aceitar o desafio primeiro
+      if (rodadaAtual === 0) {
+        const novaRodada = gameManager.aceitarDesafioInicial();
+        if (novaRodada) {
+          console.log('🎯 Desafio aceito! Nova rodada:', novaRodada);
+        }
+      }
+      
       gameManager.irParaMesaDeJogo();
     });
     
@@ -436,6 +447,16 @@ class BARLatroGameApp {
         ">🔄 Tentar Novamente</button>
       </div>
     `;
+  }
+
+  private getDificuldadeTextLocal(rodada: number): string {
+    if (rodada === 0) return 'Apresentação';
+    if (rodada === 1) return 'Iniciante';
+    if (rodada === 2) return 'Fácil';
+    if (rodada === 3) return 'Médio';
+    if (rodada === 4) return 'Difícil';
+    if (rodada === 5) return 'Muito Difícil';
+    return 'Mestre';
   }
 }
 

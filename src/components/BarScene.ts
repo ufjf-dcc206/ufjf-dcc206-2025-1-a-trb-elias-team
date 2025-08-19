@@ -468,3 +468,6 @@ export default class BarScene extends HTMLElement {
     `;
   }
 }
+
+// Registrar o componente
+customElements.define('bar-scene', BarScene);

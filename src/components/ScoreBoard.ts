@@ -429,3 +429,6 @@ export default class ScoreBoard extends HTMLElement {
     `;
   }
 }
+
+// Registrar o componente
+customElements.define('score-board', ScoreBoard);

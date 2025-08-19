@@ -642,5 +642,8 @@ class PlayerHand extends HTMLElement {
   }
 }
 
+// Registrar o componente
+customElements.define('player-hand', PlayerHand);
+
 // Exporta a classe para poder ser importada
 export default PlayerHand;  

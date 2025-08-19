@@ -480,3 +480,6 @@ export default class DialogueBox extends HTMLElement {
     `;
   }
 }
+
+// Registrar o componente
+customElements.define('dialogue-box', DialogueBox);

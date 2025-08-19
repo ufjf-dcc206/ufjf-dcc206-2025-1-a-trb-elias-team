@@ -87,5 +87,8 @@ class GameCard extends HTMLElement {
   }
 }
 
+// Registrar o componente
+customElements.define('game-card', GameCard);
+
 // Exporta a classe para poder ser importada
 export default GameCard;

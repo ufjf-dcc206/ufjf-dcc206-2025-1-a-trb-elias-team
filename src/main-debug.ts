@@ -1,5 +1,5 @@
 // main-debug.ts - Versão simplificada para debug
-console.log('🎮 Iniciando debug do ICE-latro...');
+console.log('🎮 Iniciando debug do BAR-latro...');
 
 // Teste básico de DOM
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
       text-align: center;
       font-family: Arial, sans-serif;
     ">
-      <h1 style="color: #ffd700; margin-bottom: 30px;">🎮 ICE-latro Debug</h1>
+      <h1 style="color: #ffd700; margin-bottom: 30px;">🎮 BAR-latro Debug</h1>
       <p style="font-size: 1.2em; margin-bottom: 20px;">Sistema funcionando!</p>
       <button id="test-btn" style="
         background: linear-gradient(45deg, #ffd700, #ffed4a);

@@ -1,4 +1,4 @@
-// main.ts - ICE-latro Game - Usando componentes existentes
+// main.ts - BAR-latro Game - Usando componentes existentes
 import { createDeck, shuffle } from './logic/baralho';
 import { gameManager } from './logic/gameManager'; // Usar a instância singleton
 
@@ -9,9 +9,9 @@ import './components/ScoreBoard';
 import './components/BarScene';
 import './components/DialogueBox';
 
-console.log('🎮 ICE-latro iniciando...');
+console.log('🎮 BAR-latro iniciando...');
 
-class ICELatroGameApp {
+class BARLatroGameApp {
   private gameArea: HTMLElement;
   private barScene?: HTMLElement;
   private playerHand?: HTMLElement;
@@ -120,7 +120,7 @@ class ICELatroGameApp {
 
     // Título
     const title = document.createElement('h1');
-    title.textContent = '🎮 ICE-latro - Mesa de Jogo';
+    title.textContent = '🎮 BAR-latro - Mesa de Jogo';
     title.style.cssText = `
       color: #ffd700;
       text-align: center;
@@ -421,7 +421,7 @@ class ICELatroGameApp {
         text-align: center;
         margin: 20px;
       ">
-        <h1 style="color: #ff6b6b;">❌ Erro no ICE-latro</h1>
+        <h1 style="color: #ff6b6b;">❌ Erro no BAR-latro</h1>
         <p>Ocorreu um erro durante a inicialização:</p>
         <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">${error}</pre>
         <button onclick="location.reload()" style="
@@ -441,8 +441,8 @@ class ICELatroGameApp {
 
 // Inicializar quando DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('📄 DOM carregado - iniciando ICE-latro App');
-  new ICELatroGameApp();
+  console.log('📄 DOM carregado - iniciando BAR-latro App');
+  new BARLatroGameApp();
 });
 
-export default ICELatroGameApp;
+export default BARLatroGameApp;

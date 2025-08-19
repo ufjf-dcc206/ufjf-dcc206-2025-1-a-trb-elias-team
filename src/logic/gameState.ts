@@ -6,6 +6,7 @@ export class GameState {
   private playerHand: Carta[] = [];
   private deck: Carta[] = [];
   private discardPile: Carta[] = [];
+  private originalDeck: Carta[] = []; // Referência ao deck original completo
   private maxHandSize = 8;
 
   // Variáveis do estado do jogo
@@ -15,7 +16,8 @@ export class GameState {
   private descartesRestantes = 3;
 
   constructor(initialDeck: Carta[]) {
-    this.deck = [...initialDeck]; // Cópia do baralho
+    this.originalDeck = [...initialDeck]; // Salvar deck original completo
+    this.deck = [...initialDeck]; // Cópia do baralho para usar
   }
 
   // Getters para o estado do jogo
@@ -275,28 +277,31 @@ export class GameState {
   }
 
   /**
-   * Resetar para uma nova rodada
+   * Resetar para uma nova rodada - Restaura TODAS as cartas originais
    */
   resetarRodada(novaMetaDePontos: number) {
+    console.log(`🔄 Iniciando reset da rodada - Meta anterior: ${this.metaDePontos}, Nova meta: ${novaMetaDePontos}`);
+    
+    // Resetar pontuação e configurações
     this.pontuacaoAtual = 0;
     this.metaDePontos = novaMetaDePontos;
     this.maosRestantes = 8; // Resetar mãos
     this.descartesRestantes = 5; // Resetar descartes
     
-    // Limpar mão do jogador
+    // Limpar completamente a mão do jogador
+    console.log(`🃏 Limpando mão do jogador (${this.playerHand.length} cartas)`);
     this.playerHand = [];
     
-    // Embaralhar o deck novamente se necessário
-    if (this.deck.length + this.discardPile.length > 0) {
-      // Recolocar cartas descartadas no deck
-      this.deck.push(...this.discardPile);
-      this.discardPile = [];
-      
-      // Reembaralhar
-      this.deck = shuffle(this.deck);
-    }
+    // Restaurar deck original completo (todas as 52 cartas)
+    console.log(`🔄 Restaurando deck original completo (${this.originalDeck.length} cartas)`);
+    this.deck = [...this.originalDeck]; // Restaurar todas as cartas originais
+    this.discardPile = []; // Limpar monte de descarte
     
-    console.log(`🔄 Rodada resetada - Nova meta: ${novaMetaDePontos}`);
+    // Reembaralhar o deck completo
+    this.deck = shuffle(this.deck);
+    
+    console.log(`✅ Rodada resetada - Nova meta: ${novaMetaDePontos}`);
+    console.log(`📊 Estado após reset: Deck=${this.deck.length}, Mão=${this.playerHand.length}, Descarte=${this.discardPile.length}`);
   }
 }
 

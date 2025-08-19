@@ -1,6 +1,6 @@
 // main.ts - ICE-latro Game - Usando componentes existentes
 import { createDeck, shuffle } from './logic/baralho';
-import { GameManager } from './logic/gameManager';
+import { gameManager } from './logic/gameManager'; // Usar a instância singleton
 
 // Importar todos os componentes
 import './components/GameCard';
@@ -13,14 +13,12 @@ console.log('🎮 ICE-latro iniciando...');
 
 class ICELatroGameApp {
   private gameArea: HTMLElement;
-  private gameManager: GameManager;
   private barScene?: HTMLElement;
   private playerHand?: HTMLElement;
   private scoreBoard?: HTMLElement;
 
   constructor() {
     this.gameArea = document.getElementById('game-area')!;
-    this.gameManager = new GameManager();
     this.init();
   }
 
@@ -33,7 +31,7 @@ class ICELatroGameApp {
       const shuffledDeck = shuffle(deck);
       
       // Inicializar GameManager com o baralho
-      this.gameManager.initialize(shuffledDeck);
+      gameManager.initialize(shuffledDeck);
       
       // Configurar eventos do GameManager
       this.setupGameManagerEvents();
@@ -51,24 +49,24 @@ class ICELatroGameApp {
 
   private setupGameManagerEvents() {
     // Evento de mudança de cena
-    this.gameManager.on('sceneChange', (data: any) => {
+    gameManager.on('sceneChange', (data: any) => {
       console.log('🎭 Mudança de cena:', data);
       this.handleSceneChange(data.to);
     });
 
     // Evento de início de rodada
-    this.gameManager.on('roundStart', (data: any) => {
+    gameManager.on('roundStart', (data: any) => {
       console.log('🎲 Nova rodada:', data);
       this.updateBarSceneForNewRound(data);
     });
 
     // Eventos de vitória e derrota
-    this.gameManager.on('victory', (data: any) => {
+    gameManager.on('victory', (data: any) => {
       console.log('🏆 Vitória!', data);
       this.showVictoryScreen(data);
     });
 
-    this.gameManager.on('defeat', (data: any) => {
+    gameManager.on('defeat', (data: any) => {
       console.log('💔 Derrota!', data);
       this.showDefeatScreen(data);
     });
@@ -82,16 +80,16 @@ class ICELatroGameApp {
     
     // Configurar informações da rodada atual
     const rodadaInfo = {
-      numero: this.gameManager.getRodadaAtual(),
-      metaDePontos: this.gameManager.getGameState()?.getMetaDePontos() || 100
+      numero: gameManager.getRodadaAtual(),
+      metaDePontos: gameManager.getGameState()?.getMetaDePontos() || 100
     };
     
     this.barScene.setAttribute('rodada-info', JSON.stringify(rodadaInfo));
     
-    // Event listener para quando o diálogo terminar
-    this.barScene.addEventListener('dialogue-complete', () => {
-      console.log('✅ Diálogo do bar completo, indo para mesa');
-      this.gameManager.changeScene('game-board');
+    // Event listener para quando quiser iniciar o jogo
+    this.barScene.addEventListener('startGame', (event: any) => {
+      console.log('✅ Evento startGame recebido:', event.detail);
+      gameManager.irParaMesaDeJogo();
     });
     
     this.gameArea.appendChild(this.barScene);
@@ -145,7 +143,7 @@ class ICELatroGameApp {
       align-self: center;
     `;
     backButton.addEventListener('click', () => {
-      this.gameManager.changeScene('bar-scene');
+      gameManager.changeScene('bar-scene');
     });
 
     gameBoard.appendChild(title);
@@ -162,7 +160,7 @@ class ICELatroGameApp {
     // Evento de jogar mão
     this.playerHand.addEventListener('hand-played', (event: any) => {
       console.log('🎮 Mão jogada:', event.detail);
-      const gameState = this.gameManager.getGameState();
+      const gameState = gameManager.getGameState();
       if (gameState) {
         // Processar a pontuação da mão jogada
         const pontos = event.detail.pontos || 0;
@@ -170,7 +168,7 @@ class ICELatroGameApp {
         gameState.jogarMao();
         
         // Verificar resultado
-        const result = this.gameManager.processarAcaoJogador('playHand', event.detail);
+        const result = gameManager.processarAcaoJogador('playHand', event.detail);
         this.handleGameResult(result);
       }
     });
@@ -178,7 +176,7 @@ class ICELatroGameApp {
     // Evento de descarte
     this.playerHand.addEventListener('cards-discarded', (event: any) => {
       console.log('🗑️ Cartas descartadas:', event.detail);
-      const gameState = this.gameManager.getGameState();
+      const gameState = gameManager.getGameState();
       if (gameState) {
         gameState.descartarCartas(event.detail.cards);
         gameState.usarDescarte();
@@ -190,7 +188,7 @@ class ICELatroGameApp {
     // Evento de compra de cartas
     this.playerHand.addEventListener('cards-drawn', (event: any) => {
       console.log('🃏 Cartas compradas:', event.detail);
-      const gameState = this.gameManager.getGameState();
+      const gameState = gameManager.getGameState();
       if (gameState) {
         gameState.sacarCartas(event.detail.quantidade || 1);
         this.updatePlayerHand();
@@ -207,7 +205,7 @@ class ICELatroGameApp {
   private updatePlayerHand() {
     if (!this.playerHand) return;
     
-    const gameState = this.gameManager.getGameState();
+    const gameState = gameManager.getGameState();
     if (gameState) {
       const cards = gameState.getPlayerHand();
       this.playerHand.setAttribute('cards', JSON.stringify(cards));
@@ -217,7 +215,7 @@ class ICELatroGameApp {
   private updateScoreBoard() {
     if (!this.scoreBoard) return;
     
-    const gameState = this.gameManager.getGameState();
+    const gameState = gameManager.getGameState();
     if (gameState) {
       const stats = gameState.getEstatisticas();
       this.scoreBoard.setAttribute('stats', JSON.stringify(stats));
@@ -252,7 +250,7 @@ class ICELatroGameApp {
     this.updatePlayerHand();
     
     // O GameManager vai automaticamente emitir eventos de vitória/derrota se necessário
-    const gameCondition = this.gameManager.verificarCondicoesJogo();
+    const gameCondition = gameManager.verificarCondicoesJogo();
     
     if (gameCondition === 'victory') {
       // GameManager já vai emitir o evento
@@ -313,8 +311,8 @@ class ICELatroGameApp {
 
     // Event listeners
     document.getElementById('continue-btn')?.addEventListener('click', () => {
-      const novaRodada = this.gameManager.iniciarProximaRodada();
-      this.gameManager.changeScene('bar-scene');
+      const novaRodada = gameManager.iniciarProximaRodada();
+      gameManager.changeScene('bar-scene');
     });
 
     document.getElementById('restart-btn')?.addEventListener('click', () => {
@@ -377,12 +375,12 @@ class ICELatroGameApp {
 
     // Event listeners
     document.getElementById('retry-btn')?.addEventListener('click', () => {
-      const gameState = this.gameManager.getGameState();
+      const gameState = gameManager.getGameState();
       if (gameState) {
         const metaAtual = gameState.getMetaDePontos();
         gameState.resetarRodada(metaAtual);
       }
-      this.gameManager.changeScene('game-board');
+      gameManager.changeScene('game-board');
     });
 
     document.getElementById('restart-full-btn')?.addEventListener('click', () => {
@@ -394,8 +392,8 @@ class ICELatroGameApp {
     // Reinicializar tudo do zero
     const deck = createDeck();
     const shuffledDeck = shuffle(deck);
-    this.gameManager.reiniciarJogo(shuffledDeck);
-    this.gameManager.changeScene('bar-scene');
+    gameManager.reiniciarJogo(shuffledDeck);
+    gameManager.changeScene('bar-scene');
   }
 
   private showError(error: any) {

@@ -45,7 +45,7 @@ export class GameManager {
     console.log('🎮 GameManager.initialize chamado com deck:', deck.length, 'cartas');
     this.gameState = new GameState(deck);
     this.currentScene = 'bar-scene';
-    this.rodadaAtual = 6;
+    this.rodadaAtual = 0;
     console.log('🎮 GameManager inicializado com GameState');
   }
 
@@ -89,7 +89,7 @@ export class GameManager {
     if(this.rodadaAtual >= 6){
       this.rodadaAtual = 6; // Limitar a 6 rodadas
     }
-    
+
     const rodadaInfo: RodadaInfo = {
       numero: this.rodadaAtual,
       metaDePontos: novaMetaDePontos,

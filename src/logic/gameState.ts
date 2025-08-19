@@ -285,7 +285,7 @@ export class GameState {
     // Resetar pontuação e configurações
     this.pontuacaoAtual = 0;
     this.metaDePontos = novaMetaDePontos;
-    this.maosRestantes = 8; // Resetar mãos
+    this.maosRestantes += 2; // Resetar mãos
     this.descartesRestantes = 5; // Resetar descartes
     
     // Limpar completamente a mão do jogador

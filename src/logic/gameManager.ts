@@ -12,7 +12,7 @@ export interface RodadaInfo {
 export class GameManager {
   private gameState: GameState | null = null;
   private currentScene: GameScene = 'bar-scene';
-  private rodadaAtual: number = 1;
+  private rodadaAtual: number = 0;
   private callbacks: Map<string, Function[]> = new Map();
 
   constructor() {
@@ -45,7 +45,7 @@ export class GameManager {
     console.log('🎮 GameManager.initialize chamado com deck:', deck.length, 'cartas');
     this.gameState = new GameState(deck);
     this.currentScene = 'bar-scene';
-    this.rodadaAtual = 1;
+    this.rodadaAtual = 0;
     console.log('🎮 GameManager inicializado com GameState');
   }
 
@@ -64,7 +64,21 @@ export class GameManager {
       throw new Error('GameState não inicializado');
     }
 
-    // Dobrar a meta de pontos
+    // Se estamos na rodada 0 (cena inicial), ir para rodada 1
+    if (this.rodadaAtual === 0) {
+      this.rodadaAtual = 1;
+      const rodadaInfo: RodadaInfo = {
+        numero: this.rodadaAtual,
+        metaDePontos: this.gameState.getMetaDePontos(),
+        dificuldade: this.getDificuldadeText(this.rodadaAtual)
+      };
+      
+      console.log('🎲 Primeira rodada real iniciada:', rodadaInfo);
+      this.emit('roundStart', rodadaInfo);
+      return rodadaInfo;
+    }
+
+    // Dobrar a meta de pontos para rodadas subsequentes
     const novaMetaDePontos = this.gameState.getMetaDePontos() * 2;
     
     // Resetar valores
@@ -174,7 +188,7 @@ export class GameManager {
   reiniciarJogo(deck: any[]) {
     this.gameState = new GameState(deck);
     this.currentScene = 'bar-scene';
-    this.rodadaAtual = 1;
+    this.rodadaAtual = 0;
     console.log('🔄 Jogo reiniciado');
   }
 
@@ -204,6 +218,16 @@ export class GameManager {
     } else {
       console.error('❌ GameState não encontrado!');
     }
+  }
+
+  // Aceitar o desafio inicial (sair da rodada 0 para rodada 1)
+  aceitarDesafioInicial() {
+    if (this.rodadaAtual === 0) {
+      const rodadaInfo = this.iniciarProximaRodada();
+      console.log('🎯 Desafio inicial aceito! Iniciando primeira rodada real.');
+      return rodadaInfo;
+    }
+    return null;
   }
 }
 

@@ -87,8 +87,9 @@ class BARLatroGameApp {
     this.barScene = document.createElement('bar-scene');
     
     // Configurar informações da rodada atual
+    const rodadaAtual = gameManager.getRodadaAtual();
     const rodadaInfo = {
-      numero: gameManager.getRodadaAtual(),
+      numero: rodadaAtual,
       metaDePontos: gameManager.getGameState()?.getMetaDePontos() || 100
     };
     
@@ -97,6 +98,15 @@ class BARLatroGameApp {
     // Event listener para quando quiser iniciar o jogo
     this.barScene.addEventListener('startGame', (event: any) => {
       console.log('✅ Evento startGame recebido:', event.detail);
+      
+      // Se estamos na rodada 0 (cena inicial), aceitar o desafio primeiro
+      if (rodadaAtual === 0) {
+        const novaRodada = gameManager.aceitarDesafioInicial();
+        if (novaRodada) {
+          console.log('🎯 Desafio aceito! Nova rodada:', novaRodada);
+        }
+      }
+      
       gameManager.irParaMesaDeJogo();
     });
     

@@ -1,5 +1,5 @@
 // src/logic/avaliarMao.ts
-import { Carta, Valor } from './tipos';
+import { Carta, Valor, TipoMao } from './tipos';
 
 // Mapeamento dos valores das cartas para ordenação
 const valorOrdem: { [key in Valor]: number } = {
@@ -20,7 +20,7 @@ const valorOrdem: { [key in Valor]: number } = {
 
 // Tipo para resultado da avaliação
 export interface ResultadoMao {
-  tipo: string;
+  tipo: TipoMao;
   valor: number; // Para comparação entre mãos do mesmo tipo
   cartasUtilizadas: Carta[];
   descricao: string;
@@ -71,7 +71,7 @@ function eQuadra(cartas: Carta[]): ResultadoMao | null {
     if (quantidade >= 4) {
       const cartasQuadra = cartas.filter(carta => carta.valor === valor).slice(0, 4);
       return {
-        tipo: 'Quadra',
+        tipo: 'Four of a Kind',
         valor: 8000 + valorOrdem[valor], // Alta prioridade + valor da carta
         cartasUtilizadas: cartasQuadra,
         descricao: `Quadra de ${valor}s`
@@ -163,6 +163,96 @@ function eFlush(cartas: Carta[]): ResultadoMao | null {
 }
 
 /**
+ * Verifica se há uma Sequência (Straight)
+ */
+function eStraight(cartas: Carta[]): ResultadoMao | null {
+  if (cartas.length < 5) return null;
+  
+  const valores = [...new Set(cartas.map(carta => valorOrdem[carta.valor]))].sort((a, b) => a - b);
+  
+  // Verificar sequência normal
+  for (let i = 0; i <= valores.length - 5; i++) {
+    let consecutivos = 1;
+    for (let j = i + 1; j < valores.length; j++) {
+      if (valores[j] === valores[j-1] + 1) {
+        consecutivos++;
+        if (consecutivos === 5) {
+          const valorAlto = valores[j];
+          return {
+            tipo: 'Straight',
+            valor: 5000 + valorAlto,
+            cartasUtilizadas: cartas.filter(carta => {
+              const val = valorOrdem[carta.valor];
+              return val >= valorAlto - 4 && val <= valorAlto;
+            }).slice(0, 5),
+            descricao: `Sequência até ${Object.keys(valorOrdem).find(k => valorOrdem[k as Valor] === valorAlto)}`
+          };
+        }
+      } else {
+        consecutivos = 1;
+      }
+    }
+  }
+  
+  // Verificar sequência especial A-2-3-4-5 (roda baixa)
+  if (valores.includes(1) && valores.includes(2) && valores.includes(3) && valores.includes(4) && valores.includes(5)) {
+    return {
+      tipo: 'Straight',
+      valor: 5000 + 5,
+      cartasUtilizadas: cartas.filter(carta => ['A', '2', '3', '4', '5'].includes(carta.valor)).slice(0, 5),
+      descricao: 'Sequência baixa (A-2-3-4-5)'
+    };
+  }
+  
+  return null;
+}
+
+/**
+ * Verifica se há um Straight Flush (Sequência do mesmo naipe)
+ */
+function eStraightFlush(cartas: Carta[]): ResultadoMao | null {
+  if (cartas.length < 5) return null;
+  
+  // Agrupar por naipe
+  const porNaipe = new Map<string, Carta[]>();
+  cartas.forEach(carta => {
+    const naipe = carta.tipo;
+    if (!porNaipe.has(naipe)) {
+      porNaipe.set(naipe, []);
+    }
+    porNaipe.get(naipe)!.push(carta);
+  });
+  
+  // Verificar cada naipe para straight
+  for (const [naipe, cartasNaipe] of porNaipe) {
+    if (cartasNaipe.length >= 5) {
+      const straight = eStraight(cartasNaipe);
+      if (straight) {
+        // Verificar se é Royal Flush
+        const valoresRoyal = straight.cartasUtilizadas.map(c => c.valor).sort();
+        if (valoresRoyal.join(',') === 'A,J,K,Q,10' || valoresRoyal.join(',') === '10,A,J,K,Q') {
+          return {
+            tipo: 'Royal Flush',
+            valor: 10000,
+            cartasUtilizadas: straight.cartasUtilizadas,
+            descricao: `Royal Flush de ${naipe}s`
+          };
+        }
+        
+        return {
+          tipo: 'Straight Flush',
+          valor: 9000 + straight.valor - 5000,
+          cartasUtilizadas: straight.cartasUtilizadas,
+          descricao: `Straight Flush de ${naipe}s`
+        };
+      }
+    }
+  }
+  
+  return null;
+}
+
+/**
  * Verifica se há uma Trinca (3 cartas do mesmo valor)
  */
 function eTrinca(cartas: Carta[]): ResultadoMao | null {
@@ -182,7 +272,7 @@ function eTrinca(cartas: Carta[]): ResultadoMao | null {
     const cartasTrincas = cartas.filter(carta => carta.valor === melhorTrinca).slice(0, 3);
     
     return {
-      tipo: 'Trinca',
+      tipo: 'Three of a Kind',
       valor: 4000 + valorOrdem[melhorTrinca],
       cartasUtilizadas: cartasTrincas,
       descricao: `Trinca de ${melhorTrinca}s`
@@ -217,7 +307,7 @@ function eDoisPares(cartas: Carta[]): ResultadoMao | null {
     const cartasPar2 = cartas.filter(carta => carta.valor === par2).slice(0, 2);
     
     return {
-      tipo: 'Dois Pares',
+      tipo: 'Two Pair',
       valor: 3000 + valorOrdem[par1] * 100 + valorOrdem[par2],
       cartasUtilizadas: [...cartasPar1, ...cartasPar2],
       descricao: `Dois Pares: ${par1}s e ${par2}s`
@@ -247,7 +337,7 @@ function eUmPar(cartas: Carta[]): ResultadoMao | null {
     const cartasPar = cartas.filter(carta => carta.valor === melhorPar).slice(0, 2);
     
     return {
-      tipo: 'Um Par',
+      tipo: 'One Pair',
       valor: 2000 + valorOrdem[melhorPar],
       cartasUtilizadas: cartasPar,
       descricao: `Par de ${melhorPar}s`
@@ -265,7 +355,7 @@ function cartaAlta(cartas: Carta[]): ResultadoMao {
   const maiorCarta = cartasOrdenadas[cartasOrdenadas.length - 1];
   
   return {
-    tipo: 'Carta Alta',
+    tipo: 'High Card',
     valor: 1000 + valorOrdem[maiorCarta.valor],
     cartasUtilizadas: [maiorCarta],
     descricao: `Carta Alta: ${maiorCarta.valor} de ${maiorCarta.tipo}`
@@ -280,7 +370,7 @@ function cartaAlta(cartas: Carta[]): ResultadoMao {
 export function avaliarMao(cartas: Carta[]): ResultadoMao {
   if (!cartas || cartas.length === 0) {
     return {
-      tipo: 'Mão Vazia',
+      tipo: 'High Card',
       valor: 0,
       cartasUtilizadas: [],
       descricao: 'Nenhuma carta para avaliar'
@@ -295,8 +385,15 @@ export function avaliarMao(cartas: Carta[]): ResultadoMao {
   
   // 2. Verificar combinações da mais rara para a mais comum
   
+  // Straight Flush e Royal Flush
+  let resultado = eStraightFlush(cartasOrdenadas);
+  if (resultado) {
+    console.log('🎊 Encontrada:', resultado);
+    return resultado;
+  }
+  
   // Quadra (Four of a Kind)
-  let resultado = eQuadra(cartasOrdenadas);
+  resultado = eQuadra(cartasOrdenadas);
   if (resultado) {
     console.log('🎊 Encontrada:', resultado);
     return resultado;
@@ -311,6 +408,13 @@ export function avaliarMao(cartas: Carta[]): ResultadoMao {
   
   // Flush (Todas do mesmo naipe)
   resultado = eFlush(cartasOrdenadas);
+  if (resultado) {
+    console.log('🎊 Encontrada:', resultado);
+    return resultado;
+  }
+  
+  // Straight (Sequência)
+  resultado = eStraight(cartasOrdenadas);
   if (resultado) {
     console.log('🎊 Encontrada:', resultado);
     return resultado;

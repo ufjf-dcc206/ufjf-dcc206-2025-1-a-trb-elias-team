@@ -29,6 +29,7 @@ class ICELatroGameApp {
       // Criar e embaralhar baralho
       const deck = createDeck();
       const shuffledDeck = shuffle(deck);
+      console.log('🃏 Deck criado e embaralhado:', shuffledDeck.length, 'cartas');
       
       // Inicializar GameManager com o baralho
       gameManager.initialize(shuffledDeck);
@@ -69,6 +70,13 @@ class ICELatroGameApp {
     gameManager.on('defeat', (data: any) => {
       console.log('💔 Derrota!', data);
       this.showDefeatScreen(data);
+    });
+
+    // Evento de atualização do GameState
+    gameManager.on('gameStateUpdated', (data: any) => {
+      console.log('🔄 GameState atualizado:', data);
+      this.updatePlayerHand();
+      this.updateScoreBoard();
     });
   }
 
@@ -127,7 +135,6 @@ class ICELatroGameApp {
     // PlayerHand - usa o componente existente  
     this.playerHand = document.createElement('player-hand');
     this.setupPlayerHandEvents();
-    this.updatePlayerHand();
 
     // Botão para voltar ao bar (temporário para testes)
     const backButton = document.createElement('button');
@@ -180,8 +187,7 @@ class ICELatroGameApp {
       if (gameState) {
         gameState.descartarCartas(event.detail.cards);
         gameState.usarDescarte();
-        this.updatePlayerHand();
-        this.updateScoreBoard();
+        gameManager.emitGameStateUpdate(); // Emitir atualização
       }
     });
 
@@ -191,7 +197,7 @@ class ICELatroGameApp {
       const gameState = gameManager.getGameState();
       if (gameState) {
         gameState.sacarCartas(event.detail.quantidade || 1);
-        this.updatePlayerHand();
+        gameManager.emitGameStateUpdate(); // Emitir atualização
       }
     });
 
@@ -208,7 +214,10 @@ class ICELatroGameApp {
     const gameState = gameManager.getGameState();
     if (gameState) {
       const cards = gameState.getPlayerHand();
+      console.log('🃏 Atualizando PlayerHand com cartas:', cards.length, cards);
       this.playerHand.setAttribute('cards', JSON.stringify(cards));
+    } else {
+      console.warn('⚠️ GameState não encontrado ao atualizar PlayerHand');
     }
   }
 
@@ -246,10 +255,7 @@ class ICELatroGameApp {
   }
 
   private handleGameResult(result: string) {
-    this.updateScoreBoard();
-    this.updatePlayerHand();
-    
-    // O GameManager vai automaticamente emitir eventos de vitória/derrota se necessário
+    // O GameManager e eventos gameStateUpdated cuidam das atualizações automaticamente
     const gameCondition = gameManager.verificarCondicoesJogo();
     
     if (gameCondition === 'victory') {

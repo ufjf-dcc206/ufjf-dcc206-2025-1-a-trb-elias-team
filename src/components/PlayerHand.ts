@@ -17,6 +17,23 @@ class PlayerHand extends HTMLElement {
     this.setupEventListeners();
   }
 
+  static get observedAttributes() {
+    return ['cards', 'stats'];
+  }
+
+  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+    if (oldValue !== newValue) {
+      if (name === 'cards') {
+        console.log('🃏 PlayerHand recebeu novas cartas:', newValue);
+        this.clearSelection(); // Limpar seleção quando cartas mudarem
+        this.render();
+      } else if (name === 'stats') {
+        console.log('📊 PlayerHand recebeu novas stats:', newValue);
+        this.render();
+      }
+    }
+  }
+
   // Método para definir callback de comunicação com o estado do jogo
   setGameStateCallback(callback: (action: string, data?: any) => void) {
     this.gameStateCallback = callback;
@@ -238,6 +255,7 @@ class PlayerHand extends HTMLElement {
 
   render() {
     const cards = this.cards;
+    console.log('🎨 PlayerHand renderizando com cartas:', cards.length, cards);
     const statsData = this.getAttribute('stats');
     const stats = statsData ? JSON.parse(statsData) : {};
 

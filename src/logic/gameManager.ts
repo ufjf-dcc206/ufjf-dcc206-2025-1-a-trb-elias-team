@@ -42,10 +42,11 @@ export class GameManager {
 
   // Inicializar o jogo
   initialize(deck: any[]) {
+    console.log('🎮 GameManager.initialize chamado com deck:', deck.length, 'cartas');
     this.gameState = new GameState(deck);
     this.currentScene = 'bar-scene';
     this.rodadaAtual = 1;
-    console.log('🎮 GameManager inicializado');
+    console.log('🎮 GameManager inicializado com GameState');
   }
 
   // Mudar de cena
@@ -131,6 +132,12 @@ export class GameManager {
     // Executar a ação no gameState aqui se necessário
     // (ou deixar que seja feito externamente)
 
+    // Emitir evento de atualização após ação
+    this.emit('gameStateUpdated', {
+      cards: this.gameState.getPlayerHand(),
+      stats: this.gameState.getEstatisticas()
+    });
+
     // Verificar condições após a ação
     const resultado = this.verificarCondicoesJogo();
     
@@ -153,6 +160,16 @@ export class GameManager {
     return this.gameState;
   }
 
+  // Método utilitário para emitir atualização do gameState
+  emitGameStateUpdate() {
+    if (this.gameState) {
+      this.emit('gameStateUpdated', {
+        cards: this.gameState.getPlayerHand(),
+        stats: this.gameState.getEstatisticas()
+      });
+    }
+  }
+
   // Reiniciar jogo completamente
   reiniciarJogo(deck: any[]) {
     this.gameState = new GameState(deck);
@@ -170,11 +187,22 @@ export class GameManager {
 
   // Ir para a mesa de jogo
   irParaMesaDeJogo() {
+    console.log('🎮 GameManager.irParaMesaDeJogo chamado');
     this.changeScene('game-board');
     
     if (this.gameState) {
+      console.log('🃏 Inicializando mão com 7 cartas...');
       // Inicializar mão com 7 cartas
-      this.gameState.inicializarMao(7);
+      const cartas = this.gameState.inicializarMao(7);
+      console.log('🃏 Mão inicializada:', cartas.length, 'cartas', cartas);
+      
+      // Emitir evento de atualização de jogo
+      this.emit('gameStateUpdated', {
+        cards: cartas,
+        stats: this.gameState.getEstatisticas()
+      });
+    } else {
+      console.error('❌ GameState não encontrado!');
     }
   }
 }

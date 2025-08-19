@@ -1,29 +1,33 @@
 // src/logic/pontuacao.ts
-import { TipoMao } from './tipos';
+import { TipoMao, Carta, Valor } from './tipos';
 
 // Sistema de pontuação baseado no Balatro
 export interface PontuacaoInfo {
-  pontos: number;
-  multiplicador: number;
+  pontos: number; // Soma dos valores das cartas
+  multiplicador: number; // Multiplicador baseado na raridade da mão
   tipoMao: TipoMao;
   descricao: string;
+  total: number; // pontos × multiplicador
 }
 
-// Pontos base para cada tipo de mão
-export const PONTOS_BASE: Record<TipoMao, number> = {
-  'Royal Flush': 100,
-  'Straight Flush': 80,
-  'Four of a Kind': 60,
-  'Full House': 40,
-  'Flush': 35,
-  'Straight': 30,
-  'Three of a Kind': 25,
-  'Two Pair': 20,
-  'One Pair': 15,
-  'High Card': 5
+// Valores das cartas para pontuação
+export const VALORES_CARTAS: Record<Valor, number> = {
+  'A': 15,  // Ás vale 15
+  '2': 2,
+  '3': 3,
+  '4': 4,
+  '5': 5,
+  '6': 6,
+  '7': 7,
+  '8': 8,
+  '9': 9,
+  '10': 10,
+  'J': 10,  // Figura vale 10
+  'Q': 10,  // Figura vale 10
+  'K': 10   // Figura vale 10
 };
 
-// Multiplicadores base para cada tipo de mão
+// Multiplicadores base para cada tipo de mão (raridade)
 export const MULTIPLICADORES_BASE: Record<TipoMao, number> = {
   'Royal Flush': 8,
   'Straight Flush': 6,
@@ -52,24 +56,29 @@ export const DESCRICOES_MAOS: Record<TipoMao, string> = {
 };
 
 /**
- * Calcula a pontuação final de uma mão
+ * Calcula a soma dos valores das cartas
  */
-export function calcularPontuacao(tipoMao: TipoMao, cartasJogadas: number = 5): PontuacaoInfo {
-  const pontosBase = PONTOS_BASE[tipoMao];
-  const multiplicadorBase = MULTIPLICADORES_BASE[tipoMao];
+function calcularSomaCartas(cartas: Carta[]): number {
+  return cartas.reduce((soma, carta) => soma + VALORES_CARTAS[carta.valor], 0);
+}
+
+/**
+ * Calcula a pontuação final de uma mão
+ * Apenas a maior combinação das cartas jogadas pontua
+ * Pontuação = soma dos valores das cartas × multiplicador da mão
+ */
+export function calcularPontuacao(tipoMao: TipoMao, cartas: Carta[]): PontuacaoInfo {
+  const pontos = calcularSomaCartas(cartas);
+  const multiplicador = MULTIPLICADORES_BASE[tipoMao];
   const descricao = DESCRICOES_MAOS[tipoMao];
-  
-  // Bônus por jogar com menos cartas (estilo Balatro)
-  const bonusCartas = cartasJogadas < 5 ? Math.floor((5 - cartasJogadas) * 2) : 0;
-  
-  const pontos = pontosBase + bonusCartas;
-  const multiplicador = multiplicadorBase;
+  const total = pontos * multiplicador;
   
   return {
     pontos,
     multiplicador,
     tipoMao,
-    descricao
+    descricao,
+    total
   };
 }
 
@@ -77,28 +86,25 @@ export function calcularPontuacao(tipoMao: TipoMao, cartasJogadas: number = 5): 
  * Calcula a pontuação total (pontos × multiplicador)
  */
 export function calcularPontuacaoTotal(pontuacaoInfo: PontuacaoInfo): number {
-  return pontuacaoInfo.pontos * pontuacaoInfo.multiplicador;
+  return pontuacaoInfo.total;
 }
 
 /**
  * Formatação de pontuação para exibição
  */
 export function formatarPontuacao(pontuacaoInfo: PontuacaoInfo): string {
-  const total = calcularPontuacaoTotal(pontuacaoInfo);
-  return `${pontuacaoInfo.pontos} × ${pontuacaoInfo.multiplicador} = ${total}`;
+  return `${pontuacaoInfo.pontos} × ${pontuacaoInfo.multiplicador} = ${pontuacaoInfo.total}`;
 }
 
 /**
  * Obter todas as informações de pontuação de uma vez
  */
-export function obterInformacoesPontuacao(tipoMao: TipoMao, cartasJogadas: number = 5) {
-  const info = calcularPontuacao(tipoMao, cartasJogadas);
-  const total = calcularPontuacaoTotal(info);
+export function obterInformacoesPontuacao(tipoMao: TipoMao, cartas: Carta[]) {
+  const info = calcularPontuacao(tipoMao, cartas);
   const formatado = formatarPontuacao(info);
   
   return {
     ...info,
-    total,
     formatado
   };
 }
@@ -108,7 +114,7 @@ export default {
   calcularPontuacaoTotal,
   formatarPontuacao,
   obterInformacoesPontuacao,
-  PONTOS_BASE,
+  VALORES_CARTAS,
   MULTIPLICADORES_BASE,
   DESCRICOES_MAOS
 };

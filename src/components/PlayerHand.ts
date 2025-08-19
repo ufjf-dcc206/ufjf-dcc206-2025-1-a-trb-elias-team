@@ -177,7 +177,7 @@ class PlayerHand extends HTMLElement {
     
     // Avaliar a mão para obter pontuação
     const evaluation = avaliarMao(selectedCardData);
-    const pontuacao = calcularPontuacao(evaluation.tipo, selectedCardData.length);
+    const pontuacao = calcularPontuacao(evaluation.tipo, selectedCardData);
     console.log('🎯 Mão avaliada:', evaluation, 'Pontuação:', pontuacao);
 
     // Emitir evento customizado com avaliação
@@ -187,11 +187,11 @@ class PlayerHand extends HTMLElement {
         cards: selectedCardData,
         evaluation: evaluation,
         pontuacao: pontuacao,
-        pontos: pontuacao.pontos
+        pontos: pontuacao.total // Usar pontuação total (soma × multiplicador)
       }
     }));
 
-    this.showMessage(`🎯 ${evaluation.tipo} - ${pontuacao.pontos} pontos! Use "Sacar Carta" para repor!`, 'success');
+    this.showMessage(`🎯 ${evaluation.tipo} - ${pontuacao.total} pontos! (${pontuacao.pontos} × ${pontuacao.multiplicador}) Use "Sacar Carta" para repor!`, 'success');
     
     // Limpar seleção imediatamente pois as cartas serão removidas
     this.clearSelection();
@@ -202,7 +202,7 @@ class PlayerHand extends HTMLElement {
         cards: selectedCardData,
         evaluation: evaluation,
         pontuacao: pontuacao,
-        pontos: pontuacao.pontos
+        pontos: pontuacao.total // Usar pontuação total
       });
     }
   }

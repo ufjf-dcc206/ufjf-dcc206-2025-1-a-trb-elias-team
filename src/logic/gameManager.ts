@@ -45,7 +45,7 @@ export class GameManager {
     console.log('🎮 GameManager.initialize chamado com deck:', deck.length, 'cartas');
     this.gameState = new GameState(deck);
     this.currentScene = 'bar-scene';
-    this.rodadaAtual = 0;
+    this.rodadaAtual = 6;
     console.log('🎮 GameManager inicializado com GameState');
   }
 
@@ -86,6 +86,9 @@ export class GameManager {
     
     // Incrementar rodada
     this.rodadaAtual++;
+    if(this.rodadaAtual >= 6){
+      this.rodadaAtual = 6; // Limitar a 6 rodadas
+    }
     
     const rodadaInfo: RodadaInfo = {
       numero: this.rodadaAtual,
@@ -105,7 +108,7 @@ export class GameManager {
     if (rodada === 3) return 'Médio';
     if (rodada === 4) return 'Difícil';
     if (rodada === 5) return 'Muito Difícil';
-    return 'Impossível';
+    return 'Mestre';
   }
 
   // Verificar condições de vitória/derrota

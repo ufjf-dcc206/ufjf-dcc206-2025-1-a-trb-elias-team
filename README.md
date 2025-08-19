@@ -1,23 +1,286 @@
-# 🎲 BAR-latro
+# � BAR-latro - Jogo de Cartas
 
-**Um jogo de poker moderno desenvolvido com Web Components e TypeScript**
+## 📋 Sobre o Projeto
 
-## 📖 Sobre o Projeto
+BAR-latro é um jogo de cartas inspirado no poker, desenvolvido em TypeScript com componentes web nativos. O jogo simula um ambiente de bar onde o jogador enfrenta desafios progressivos de pontuação usando mãos de poker.
 
-BAR-latro é um jogo de poker inovador que combina mecânicas clássicas de poker com uma progressão de dificuldade desafiadora. Desenvolvido inteiramente com **Web Components nativos** e **TypeScript** oferece uma experiência imersiva com narrativa envolvente em um ambiente de bar.
+## 🎯 Arquitetura e Integração
 
-### ✨ Características Principais
+### 🏗️ Estrutura do Projeto
 
-- 🃏 **Sistema de Poker Completo** - Todas as combinações clássicas implementadas
-- 🎭 **Narrativa Imersiva** - Diálogos contextuais entre rodadas
-- 🔄 **Progressão de Dificuldade** - Metas que dobram a cada rodada
-- 🎨 **Interface Moderna** - Animações suaves e design responsivo
-- ⚡ **Performance Otimizada** - Web Components nativos sem frameworks
+```
+ICE-latro/
+├── src/
+│   ├── main.ts                 # Aplicação principal e integração
+│   ├── main-debug.ts          # Versão de debug para testes
+│   ├── components/            # Componentes Web Components
+│   │   ├── BarScene.ts        # Cena do bar
+│   │   ├── DialogueBox.ts     # Sistema de diálogos
+│   │   ├── GameCard.ts        # Carta do jogo
+│   │   ├── PlayerHand.ts      # Mão do jogador
+│   │   └── ScoreBoard.ts      # Painel de pontuação
+│   └── logic/                 # Lógica de negócio
+│       ├── avaliarMao.ts      # Avaliação de mãos de poker
+│       ├── baralho.ts         # Criação e embaralhamento
+│       ├── deck.ts            # Estruturas do baralho
+│       ├── gameManager.ts     # Gerenciador central
+│       ├── gameState.ts       # Estado do jogo
+│       ├── pontuacao.ts       # Sistema de pontuação
+│       └── tipos.ts           # Definições de tipos
+├── index.html                 # Página principal
+├── demo.html                  # Página de demonstração
+├── package.json               # Dependências e scripts
+├── vite.config.ts             # Configuração do Vite
+└── README.md                  # Documentação
+```
 
-## 🎮 Como Jogar
+## 🔧 Configuração do Ambiente
 
-### Objetivo
-Alcance a meta de pontos em até **8 mãos** com apenas **5 descartes** disponíveis por rodada.
+### Pré-requisitos
+- Node.js (versão 16+)
+- NPM ou Yarn
+
+### Dependências
+
+#### Dependências de Desenvolvimento
+```json
+{
+  "devDependencies": {
+    "@vitest/ui": "^3.2.4",
+    "jsdom": "^26.1.0", 
+    "vitest": "^3.2.4"
+  }
+}
+```
+
+#### Scripts Disponíveis
+```json
+{
+  "scripts": {
+    "dev": "vite",           # Servidor de desenvolvimento
+    "build": "tsc && vite build",  # Build de produção
+    "preview": "vite preview",     # Preview do build
+    "test": "vitest",             # Executar testes
+    "test:ui": "vitest --ui"      # Interface gráfica de testes
+  }
+}
+```
+
+### 🛠️ Configuração do Vite
+
+O projeto utiliza Vite como bundler e servidor de desenvolvimento:
+
+```typescript
+// vite.config.ts
+/// <reference types="vitest" />
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  test: {
+    environment: 'jsdom',  // Simula ambiente do navegador
+    globals: true,         // Disponibiliza globals de teste
+  },
+})
+```
+
+## 🎮 Sistema de Integração
+
+### 1. Gerenciador Central (`GameManager`)
+
+O `GameManager` atua como singleton centralizando toda a lógica do jogo:
+
+```typescript
+// Instância singleton
+export const gameManager = new GameManager();
+
+// Eventos principais
+gameManager.on('sceneChange', handleSceneChange);
+gameManager.on('roundStart', handleRoundStart); 
+gameManager.on('victory', handleVictory);
+gameManager.on('defeat', handleDefeat);
+gameManager.on('gameStateUpdated', handleStateUpdate);
+```
+
+### 2. Arquitetura de Componentes
+
+#### Web Components Nativos
+Todos os componentes são implementados como Custom Elements:
+
+```typescript
+// Exemplo: BarScene.ts
+export default class BarScene extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
+}
+
+// Registro do componente
+customElements.define('bar-scene', BarScene);
+```
+
+#### Sistema de Comunicação
+- **Props via Atributos**: Dados passados via `setAttribute()`
+- **Eventos Customizados**: Comunicação entre componentes
+- **Shadow DOM**: Encapsulamento de estilos
+
+### 3. Fluxo de Inicialização
+
+```typescript
+class BARLatroGameApp {
+  private async init() {
+    // 1. Criar e embaralhar baralho
+    const deck = createDeck();
+    const shuffledDeck = shuffle(deck);
+    
+    // 2. Inicializar GameManager
+    gameManager.initialize(shuffledDeck);
+    
+    // 3. Configurar eventos
+    this.setupGameManagerEvents();
+    
+    // 4. Mostrar cena inicial
+    this.showBarScene();
+  }
+}
+```
+
+## 🔧 Como Executar
+
+### 1. Instalação
+```bash
+# Clonar o repositório
+git clone [url-do-repositorio]
+cd ICE-latro
+
+# Instalar dependências
+npm install
+```
+
+### 2. Desenvolvimento
+```bash
+# Servidor de desenvolvimento
+npm run dev
+
+# Executar em http://localhost:5173
+```
+
+### 3. Build
+```bash
+# Build de produção
+npm run build
+
+# Testar build
+npm run preview
+```
+
+### 4. Testes
+```bash
+# Executar testes
+npm test
+
+# Interface gráfica de testes
+npm run test:ui
+```
+
+## 🎯 Funcionalidades Implementadas
+
+### ✅ Sistema de Cenas
+- **Bar Scene**: Ambiente inicial com diálogos
+- **Game Board**: Mesa de jogo principal
+- **Victory/Defeat**: Telas de resultado
+
+### ✅ Componentes Interativos
+- **PlayerHand**: Gerenciamento da mão do jogador
+- **ScoreBoard**: Painel de pontuação em tempo real
+- **GameCard**: Renderização de cartas
+- **DialogueBox**: Sistema de narrativa
+
+### ✅ Lógica de Jogo
+- **Avaliação de Mãos**: Sistema completo de poker
+- **Progressão**: Rodadas com dificuldade crescente
+- **Estado Persistente**: Gerenciamento via GameState
+
+## 🔄 Sistema de Estados
+
+```typescript
+// GameState gerencia:
+- Mão do jogador
+- Pontuação atual
+- Meta de pontos
+- Estatísticas (mãos, descartes, etc.)
+- Deck disponível
+
+// Eventos automáticos:
+gameManager.emitGameStateUpdate(); // Atualiza todos os componentes
+```
+
+## 🎨 Sistema Visual
+
+### Temas e Estilos
+- **Gradientes**: Ambiente de bar com iluminação
+- **Animações**: Transições suaves entre estados
+- **Responsividade**: Adaptação para diferentes telas
+- **Shadow DOM**: Isolamento de estilos por componente
+
+## 🧪 Estratégia de Debug
+
+### Arquivo de Debug (`main-debug.ts`)
+```typescript
+// Versão simplificada para testes
+- Teste de DOM
+- Verificação de imports
+- Logs detalhados
+- Interface de erro
+```
+
+### Logs do Sistema
+```typescript
+console.log('🎮 BAR-latro iniciando...');
+console.log('🃏 Deck criado:', shuffledDeck.length);
+console.log('✅ Jogo inicializado!');
+```
+
+## 📱 Responsividade
+
+```css
+@media (max-width: 768px) {
+  .bar-content { padding: 10px; }
+  .counter-surface { padding: 20px; }
+  .background-elements { display: none; }
+}
+```
+
+## 🚀 Deploy e Produção
+
+### Build Otimizado
+```bash
+npm run build
+# Gera: dist/ com arquivos otimizados
+```
+
+### Estrutura de Deploy
+```
+dist/
+├── index.html
+├── assets/
+│   ├── main.[hash].js
+│   └── main.[hash].css
+```
+
+## 🤝 Integração da Equipe
+
+### Divisão de Responsabilidades
+- **Integração & Ambiente**: Sistema de build, componentes, arquitetura
+- **Lógica de Jogo**: Regras do poker, avaliação de mãos
+- **Interface**: Design, animações, UX
+- **Testes**: Casos de teste, validação
+
+### Padrões de Código
+- **TypeScript**: Tipagem forte
+- **Modularização**: Separação clara de responsabilidades
+- **Event-Driven**: Comunicação via eventos
+- **Component-Based**: Reutilização de componentes
 
 ### Mecânicas
 

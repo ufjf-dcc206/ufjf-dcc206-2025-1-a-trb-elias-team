@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎲 ICE-latro - Demo Completa</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .demo-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .game-title {
+            font-size: 3em;
+            margin: 0;
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            letter-spacing: 3px;
+            animation: title-glow 2s infinite alternate;
+        }
+
+        @keyframes title-glow {
+            0% { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.7)); }
+            100% { filter: drop-shadow(0 0 40px rgba(255, 215, 0, 1)); }
+        }
+
+        .game-subtitle {
+            font-size: 1.2em;
+            margin: 10px 0;
+            color: #e0e0e0;
+            font-style: italic;
+        }
+
+        .features-list {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .features-list h3 {
+            color: #ffd700;
+            margin-top: 0;
+        }
+
+        .features-list ul {
+            color: #e0e0e0;
+            margin: 0;
+        }
+
+        .features-list li {
+            margin: 5px 0;
+        }
+
+        /* Animação de background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            animation: background-drift 20s infinite linear;
+        }
+
+        @keyframes background-drift {
+            0% { transform: rotate(0deg) translateX(0); }
+            100% { transform: rotate(360deg) translateX(20px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="game-header">
+            <h1 class="game-title">🎲 ICE-latro</h1>
+            <p class="game-subtitle">Mesa de Jogo Completa - Poker com Web Components</p>
+            
+            <div class="features-list">
+                <h3>🎮 Funcionalidades Implementadas:</h3>
+                <ul>
+                    <li>🎴 <strong>Web Components Personalizados:</strong> GameCard, PlayerHand, ScoreBoard</li>
+                    <li>🎯 <strong>Sistema de Seleção:</strong> Máximo 5 cartas com feedback visual</li>
+                    <li>🎲 <strong>Avaliação de Mãos:</strong> Todas as combinações de poker (Carta Alta → Royal Flush)</li>
+                    <li>💰 <strong>Sistema de Pontuação:</strong> Multiplicadores dinâmicos por tipo de mão</li>
+                    <li>⚡ <strong>Botões Interativos:</strong> Sacar, Descartar, Jogar Mão</li>
+                    <li>📊 <strong>Placar Dinâmico:</strong> Progresso em tempo real, estatísticas detalhadas</li>
+                    <li>🎊 <strong>Notificações:</strong> Popup animado com resultado das jogadas</li>
+                    <li>🏆 <strong>Objetivo:</strong> Atingir 10.000 pontos em 8 mãos!</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- O jogo será inserido aqui pelo JavaScript -->
+        <div id="game-area"></div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
